@@ -3,35 +3,43 @@ import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 
 export async function POST(req: Request) {
-  const { email, password, businessName, currency } = await req.json();
+  try {
+    const { email, password, businessName, currency } = await req.json();
 
-  if (!email || !password || !businessName) {
-    return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
-  }
+    if (!email || !password || !businessName) {
+      return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+    }
 
-  if (password.length < 8) {
-    return NextResponse.json({ error: "Password must be at least 8 characters." }, { status: 400 });
-  }
+    if (password.length < 8) {
+      return NextResponse.json({ error: "Password must be at least 8 characters." }, { status: 400 });
+    }
 
-  const existing = await db.user.findUnique({ where: { email } });
-  if (existing) {
-    return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
-  }
+    const existing = await db.user.findUnique({ where: { email } });
+    if (existing) {
+      return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
+    }
 
-  const passwordHash = await bcrypt.hash(password, 12);
+    const passwordHash = await bcrypt.hash(password, 12);
 
-  const user = await db.user.create({
-    data: {
-      email,
-      passwordHash,
-      business: {
-        create: {
-          name: businessName,
-          currency: currency ?? "GBP",
+    const user = await db.user.create({
+      data: {
+        email,
+        passwordHash,
+        business: {
+          create: {
+            name: businessName,
+            currency: currency ?? "GBP",
+          },
         },
       },
-    },
-  });
+    });
 
-  return NextResponse.json({ id: user.id }, { status: 201 });
+    return NextResponse.json({ id: user.id }, { status: 201 });
+  } catch (err) {
+    console.error("[register] error:", err);
+    return NextResponse.json(
+      { error: "Internal server error. Please try again." },
+      { status: 500 }
+    );
+  }
 }
