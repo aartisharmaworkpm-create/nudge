@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/Admin/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/ec9e95e3-9a6f-42a2-968d-9f16846e6dc1/3849f942-bac0-471c-9fc2-dd752b01ab79/skills/docx/**)",
+      "Bash(pandoc --track-changes=all \"C:\\\\Users\\\\Admin\\\\Downloads\\\\Nudge_UX_Specification.docx\" -o output.md)",
+      "Bash(python scripts/office/unpack.py \"C:\\\\Users\\\\Admin\\\\Downloads\\\\Nudge_UX_Specification.docx\" unpacked/)",
+      "Bash(pip install:*)",
+      "Bash(npm --version)",
+      "Bash(npx --version)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git)"
+    ]
+  }
+}
