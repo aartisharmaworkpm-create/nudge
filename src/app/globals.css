@@ -17,12 +17,12 @@
   --color-teal-200: #9FD9D1;
   --color-teal-100: #D0EDEA;
   --color-teal-50:  #EBF7F5;
-  --color-cream:    #F0EDE5;
-  --color-cream-dark: #E6E2D9;
+  --color-cream:    #F5F5F1;
+  --color-cream-dark: #E8E8E3;
 }
 
 :root {
-  --background: #F0EDE5;
+  --background: #F5F5F1;
   --foreground: #111111;
 }
 
