@@ -1,7 +1,10 @@
-import { auth } from "@/lib/auth";
+import NextAuth from "next-auth";
+import { authConfig } from "@/lib/auth.config";
 import { NextResponse } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/signup", "/", "/api/auth"];
+const { auth } = NextAuth(authConfig);
+
+const PUBLIC_PATHS = ["/login", "/signup", "/", "/api/auth", "/api/webhooks"];
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
@@ -14,7 +17,6 @@ export default auth((req) => {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Redirect logged-in users away from auth pages
   if (req.auth && (pathname === "/login" || pathname === "/signup")) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
