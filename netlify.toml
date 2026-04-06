@@ -1,6 +1,5 @@
 [build]
   command = "npm run db:generate && next build"
-  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "20"
