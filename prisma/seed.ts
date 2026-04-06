@@ -53,26 +53,12 @@ const templates = [
 async function main() {
   console.log("Seeding default message templates…");
 
-  for (const template of templates) {
-    await prisma.messageTemplate.upsert({
-      where: {
-        businessId_step_tone_channel: {
-          businessId: null as unknown as string,
-          step: template.step,
-          tone: template.tone,
-          channel: template.channel,
-        },
-      },
-      update: { body: template.body },
-      create: {
-        businessId: null,
-        step: template.step,
-        tone: template.tone,
-        channel: template.channel,
-        body: template.body,
-      },
-    });
-  }
+  // Delete existing global templates (businessId IS NULL) and recreate —
+  // upsert can't match NULL in a unique index in Prisma 7
+  await prisma.messageTemplate.deleteMany({ where: { businessId: null } });
+  await prisma.messageTemplate.createMany({
+    data: templates.map((t) => ({ ...t, businessId: null })),
+  });
 
   console.log(`✓ ${templates.length} templates seeded.`);
 }
