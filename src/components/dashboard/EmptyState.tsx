@@ -4,8 +4,8 @@ export default function EmptyState({ businessName }: { businessName: string }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 px-8 py-14 text-center">
       {/* Illustration */}
-      <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-5">
-        <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="w-16 h-16 bg-teal-50 rounded-2xl flex items-center justify-center mx-auto mb-5">
+        <svg className="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
@@ -19,7 +19,7 @@ export default function EmptyState({ businessName }: { businessName: string }) {
 
       <Link
         href="/invoices/new"
-        className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors"
+        className="inline-flex items-center gap-2 bg-teal-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-teal-900 transition-colors"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -35,7 +35,7 @@ export default function EmptyState({ businessName }: { businessName: string }) {
           { n: "3", title: "Nudge handles it", desc: "Automated reminders go out. You get notified when delivered." },
         ].map(({ n, title, desc }) => (
           <div key={n} className="bg-gray-50 rounded-xl p-4">
-            <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center mb-2">
+            <div className="w-6 h-6 rounded-full bg-teal-50 text-teal-900 text-xs font-bold flex items-center justify-center mb-2">
               {n}
             </div>
             <p className="text-sm font-semibold text-gray-800 mb-1">{title}</p>

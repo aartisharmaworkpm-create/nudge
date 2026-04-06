@@ -74,7 +74,7 @@ export default function WhatsAppSettings({
               type="tel"
               value={whatsappNumber}
               onChange={(e) => { setWhatsappNumber(e.target.value); setSaved(false); }}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
               placeholder="+447700900000"
             />
             <p className="text-xs text-gray-400 mt-1">
@@ -90,7 +90,7 @@ export default function WhatsAppSettings({
             <button
               type="submit"
               disabled={saving || !isDirty}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-40 transition-colors"
+              className="bg-teal-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-900 disabled:opacity-40 transition-colors"
             >
               {saving ? "Saving…" : "Save"}
             </button>
@@ -116,7 +116,7 @@ export default function WhatsAppSettings({
               Go to <strong>Meta for Developers</strong> → Create an app → Add the WhatsApp product.
               Approval can take 2–4 weeks. Apply early.
             </p>
-            <div className="mt-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+            <div className="mt-2 bg-teal-50 border border-teal-100 rounded-lg px-3 py-2">
               <p className="text-xs text-blue-800">
                 <strong>Faster option:</strong> Use a BSP (Business Solution Provider) like{" "}
                 <strong>360dialog</strong> or <strong>Twilio</strong> — they provide sandbox
@@ -190,7 +190,7 @@ export default function WhatsAppSettings({
 function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
   return (
     <div className="flex gap-3">
-      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center mt-0.5">
+      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-50 text-teal-900 text-xs font-bold flex items-center justify-center mt-0.5">
         {n}
       </div>
       <div className="flex-1 min-w-0">

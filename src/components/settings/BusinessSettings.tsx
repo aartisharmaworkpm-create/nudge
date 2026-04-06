@@ -70,7 +70,7 @@ export default function BusinessSettings({
             required
             value={name}
             onChange={(e) => { setName(e.target.value); setSaved(false); }}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
             placeholder="Meridian Studio"
           />
           <p className="text-xs text-gray-400 mt-1">
@@ -83,7 +83,7 @@ export default function BusinessSettings({
           <select
             value={currency}
             onChange={(e) => { setCurrency(e.target.value); setSaved(false); }}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
           >
             {CURRENCIES.map((c) => (
               <option key={c.code} value={c.code}>{c.label}</option>
@@ -102,7 +102,7 @@ export default function BusinessSettings({
           <button
             type="submit"
             disabled={saving || !isDirty}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-40 transition-colors"
+            className="bg-teal-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-900 disabled:opacity-40 transition-colors"
           >
             {saving ? "Saving…" : "Save changes"}
           </button>

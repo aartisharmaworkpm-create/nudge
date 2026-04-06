@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-cream">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
@@ -63,7 +63,7 @@ function LoginForm() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
             placeholder="you@company.com"
           />
         </div>
@@ -77,7 +77,7 @@ function LoginForm() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
             placeholder="••••••••"
           />
         </div>
@@ -91,7 +91,7 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+          className="w-full bg-teal-800 text-white rounded-lg py-2 text-sm font-medium hover:bg-teal-900 disabled:opacity-50 transition-colors"
         >
           {loading ? "Signing in…" : "Sign in"}
         </button>
@@ -105,7 +105,7 @@ function LoginForm() {
 
       <button
         onClick={() => signIn("google", { callbackUrl })}
-        className="w-full border border-gray-300 rounded-lg py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+        className="w-full border border-gray-300 rounded-lg py-2 text-sm font-medium text-gray-700 hover:bg-cream transition-colors flex items-center justify-center gap-2"
       >
         <svg className="w-4 h-4" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -118,7 +118,7 @@ function LoginForm() {
 
       <p className="text-center text-sm text-gray-500 mt-6">
         No account?{" "}
-        <Link href="/signup" className="text-blue-600 hover:underline font-medium">
+        <Link href="/signup" className="text-teal-800 hover:underline font-medium">
           Sign up free
         </Link>
       </p>

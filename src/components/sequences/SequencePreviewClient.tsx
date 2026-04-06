@@ -139,7 +139,7 @@ export default function SequencePreviewClient({
                       onClick={() => setActiveTab((p) => ({ ...p, [step.id]: ch }))}
                       className={`flex-1 py-2 text-xs font-medium transition-colors ${
                         tab === ch
-                          ? "text-blue-600 border-b-2 border-blue-600"
+                          ? "text-teal-800 border-b-2 border-teal-800"
                           : "text-gray-400 hover:text-gray-600"
                       }`}
                     >
@@ -157,11 +157,11 @@ export default function SequencePreviewClient({
                       value={editedBodies[step.id]}
                       onChange={(e) => setEditedBodies((p) => ({ ...p, [step.id]: e.target.value }))}
                       rows={6}
-                      className="w-full border border-blue-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      className="w-full border border-teal-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 resize-none"
                     />
                     <button
                       onClick={() => setEditingId(null)}
-                      className="mt-2 text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700"
+                      className="mt-2 text-xs bg-teal-800 text-white px-3 py-1.5 rounded-lg hover:bg-teal-900"
                     >
                       Done
                     </button>
@@ -213,7 +213,7 @@ export default function SequencePreviewClient({
         <button
           onClick={handleActivate}
           disabled={activating}
-          className="w-full bg-blue-600 text-white rounded-xl py-4 text-base font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-sm"
+          className="w-full bg-teal-800 text-white rounded-xl py-4 text-base font-semibold hover:bg-teal-900 disabled:opacity-50 transition-colors shadow-sm"
         >
           {activating ? "Activating…" : "Activate sequence"}
         </button>

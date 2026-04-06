@@ -48,7 +48,7 @@ export default function Sidebar({
     <aside className="w-60 bg-white border-r border-gray-200 flex flex-col">
       {/* Logo */}
       <div className="px-5 py-5 border-b border-gray-100">
-        <span className="text-xl font-bold text-blue-600 tracking-tight">Nudge</span>
+        <span className="text-xl font-black text-gray-900 tracking-tight">Nudge.</span>
         <p className="text-xs text-gray-400 mt-0.5 truncate">{businessName}</p>
       </div>
 
@@ -62,8 +62,8 @@ export default function Sidebar({
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 active
-                  ? "bg-blue-50 text-blue-700"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-teal-50 text-teal-900"
+                  : "text-gray-600 hover:bg-cream hover:text-gray-900"
               }`}
             >
               {item.icon}
@@ -80,7 +80,7 @@ export default function Sidebar({
         </div>
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700 w-full transition-colors"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-500 hover:bg-cream hover:text-gray-700 w-full transition-colors"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

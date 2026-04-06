@@ -64,7 +64,7 @@ export default async function DashboardPage() {
         </div>
         <Link
           href="/invoices/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
+          className="bg-teal-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-900 transition-colors flex items-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -120,7 +120,7 @@ export default async function DashboardPage() {
             <Link
               key={invoice.id}
               href={`/invoices/${invoice.id}`}
-              className="block bg-white border border-gray-200 rounded-xl px-5 py-4 hover:border-blue-300 hover:shadow-sm transition-all"
+              className="block bg-white border border-gray-200 rounded-xl px-5 py-4 hover:border-teal-200 hover:shadow-sm transition-all"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
@@ -130,7 +130,7 @@ export default async function DashboardPage() {
                       {cfg.label}
                     </span>
                     {invoice.sequence?.status === "PAUSED" && (
-                      <span className="text-xs px-2 py-0.5 rounded-full border bg-gray-50 text-gray-500 border-gray-200 font-medium">
+                      <span className="text-xs px-2 py-0.5 rounded-full border bg-cream text-gray-500 border-gray-200 font-medium">
                         Paused
                       </span>
                     )}
@@ -142,7 +142,7 @@ export default async function DashboardPage() {
                     )}
                   </p>
                   {nextMessage && (
-                    <p className="text-xs text-blue-600 mt-1">
+                    <p className="text-xs text-teal-800 mt-1">
                       Next: {nextMessage.step === 1 ? "Day 1" : nextMessage.step === 2 ? "Day 7" : "Day 14"} reminder on{" "}
                       {formatDate(nextMessage.scheduledAt)}
                     </p>
@@ -183,7 +183,7 @@ function StatCard({
     yellow: "bg-yellow-50 border-yellow-100",
     red: "bg-red-50 border-red-100",
     green: "bg-green-50 border-green-100",
-    blue: "bg-blue-50 border-blue-100",
+    blue: "bg-teal-50 border-teal-100",
   };
   return (
     <div className={`rounded-xl border px-4 py-4 ${colors[color]}`}>

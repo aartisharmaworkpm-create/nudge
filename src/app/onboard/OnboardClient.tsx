@@ -47,11 +47,11 @@ export default function OnboardClient({ userName }: { userName: string }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-cream flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <span className="text-3xl font-bold text-blue-600 tracking-tight">Nudge</span>
+          <span className="text-3xl font-bold text-teal-800 tracking-tight">Nudge</span>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
@@ -67,8 +67,8 @@ export default function OnboardClient({ userName }: { userName: string }) {
 
           {/* Progress */}
           <div className="flex items-center gap-2 mb-6">
-            <div className="h-1.5 flex-1 rounded-full bg-blue-600" />
-            <div className="h-1.5 flex-1 rounded-full bg-blue-600" />
+            <div className="h-1.5 flex-1 rounded-full bg-teal-800" />
+            <div className="h-1.5 flex-1 rounded-full bg-teal-800" />
             <span className="text-xs text-gray-400 ml-1">Almost there</span>
           </div>
 
@@ -84,7 +84,7 @@ export default function OnboardClient({ userName }: { userName: string }) {
                 autoFocus
                 value={businessName}
                 onChange={(e) => setBusinessName(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
                 placeholder="e.g. Meridian Studio"
               />
               <p className="text-xs text-gray-400 mt-1">
@@ -100,7 +100,7 @@ export default function OnboardClient({ userName }: { userName: string }) {
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
               >
                 {CURRENCIES.map((c) => (
                   <option key={c.code} value={c.code}>{c.label}</option>
@@ -118,7 +118,7 @@ export default function OnboardClient({ userName }: { userName: string }) {
             <button
               type="submit"
               disabled={loading || !businessName.trim()}
-              className="w-full bg-blue-600 text-white rounded-lg py-3 text-sm font-semibold hover:bg-blue-700 disabled:opacity-40 transition-colors"
+              className="w-full bg-teal-800 text-white rounded-lg py-3 text-sm font-semibold hover:bg-teal-900 disabled:opacity-40 transition-colors"
             >
               {loading ? "Setting up…" : "Go to dashboard →"}
             </button>

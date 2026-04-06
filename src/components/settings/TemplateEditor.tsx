@@ -88,7 +88,7 @@ export default function TemplateEditor({ templates }: { templates: TemplateData[
           </div>
           <button
             onClick={() => setShowVars((v) => !v)}
-            className="text-xs text-blue-600 hover:underline flex-shrink-0 ml-4"
+            className="text-xs text-teal-800 hover:underline flex-shrink-0 ml-4"
           >
             {showVars ? "Hide variables" : "Variables →"}
           </button>
@@ -100,7 +100,7 @@ export default function TemplateEditor({ templates }: { templates: TemplateData[
             <div className="grid grid-cols-2 gap-2">
               {TEMPLATE_VARS.map(({ var: v, desc }) => (
                 <div key={v} className="flex items-start gap-2">
-                  <code className="text-xs bg-white border border-gray-200 rounded px-1.5 py-0.5 text-blue-700 font-mono flex-shrink-0">
+                  <code className="text-xs bg-white border border-gray-200 rounded px-1.5 py-0.5 text-teal-900 font-mono flex-shrink-0">
                     {v}
                   </code>
                   <span className="text-xs text-gray-500">{desc}</span>
@@ -150,7 +150,7 @@ export default function TemplateEditor({ templates }: { templates: TemplateData[
                   <span className="text-sm font-semibold text-gray-700">{stepInfo.label}</span>
                   <span className="text-xs text-gray-400">{stepInfo.desc}</span>
                   {isCustomised && (
-                    <span className="text-xs bg-blue-50 text-blue-600 border border-blue-200 px-1.5 py-0.5 rounded-full">
+                    <span className="text-xs bg-teal-50 text-teal-800 border border-teal-100 px-1.5 py-0.5 rounded-full">
                       Customised
                     </span>
                   )}
@@ -168,13 +168,13 @@ export default function TemplateEditor({ templates }: { templates: TemplateData[
                       value={body}
                       onChange={(e) => setEditedBodies((p) => ({ ...p, [key]: e.target.value }))}
                       rows={7}
-                      className="w-full border border-blue-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none font-mono leading-relaxed"
+                      className="w-full border border-teal-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 resize-none font-mono leading-relaxed"
                     />
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleSave(step, activeTone)}
                         disabled={isSaving}
-                        className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                        className="bg-teal-800 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-teal-900 disabled:opacity-50"
                       >
                         {isSaving ? "Saving…" : "Save template"}
                       </button>
@@ -205,7 +205,7 @@ export default function TemplateEditor({ templates }: { templates: TemplateData[
                     <div className="flex items-center gap-3 mt-3">
                       <button
                         onClick={() => { setEditingKey(key); setEditedBodies((p) => ({ ...p, [key]: body })); }}
-                        className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+                        className="text-sm text-teal-800 hover:underline flex items-center gap-1"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

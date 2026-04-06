@@ -147,7 +147,7 @@ export default function NewInvoicePage() {
               value={clientName}
               onChange={(e) => { setClientName(e.target.value); setSelectedClient(null); setShowSuggestions(true); }}
               onFocus={() => setShowSuggestions(true)}
-              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
               placeholder="Meridian Studio"
             />
             {selectedClient && (
@@ -163,7 +163,7 @@ export default function NewInvoicePage() {
                   key={c.id}
                   type="button"
                   onClick={() => selectClient(c)}
-                  className="w-full text-left px-4 py-3 text-sm hover:bg-blue-50 border-b border-gray-100 last:border-0"
+                  className="w-full text-left px-4 py-3 text-sm hover:bg-teal-50 border-b border-gray-100 last:border-0"
                 >
                   <p className="font-medium text-gray-900">{c.name}</p>
                   <p className="text-gray-400 text-xs mt-0.5">{c.email ?? c.whatsapp}</p>
@@ -181,7 +181,7 @@ export default function NewInvoicePage() {
               type="email"
               value={clientEmail}
               onChange={(e) => setClientEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
               placeholder="sarah@client.com"
             />
           </div>
@@ -191,7 +191,7 @@ export default function NewInvoicePage() {
               type="tel"
               value={clientWhatsapp}
               onChange={(e) => setClientWhatsapp(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
               placeholder="+44 7700 900000"
             />
           </div>
@@ -211,7 +211,7 @@ export default function NewInvoicePage() {
               step="0.01"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
               placeholder="3200.00"
             />
           </div>
@@ -224,7 +224,7 @@ export default function NewInvoicePage() {
               required
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
             />
           </div>
         </div>
@@ -239,7 +239,7 @@ export default function NewInvoicePage() {
             required
             value={paymentLink}
             onChange={(e) => setPaymentLink(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
             placeholder="https://pay.stripe.com/... or PayPal link"
           />
           <div className="flex gap-3 mt-2">
@@ -253,7 +253,7 @@ export default function NewInvoicePage() {
               href={paymentLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline mt-1"
+              className="inline-flex items-center gap-1 text-xs text-teal-800 hover:underline mt-1"
             >
               Test this link
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -274,7 +274,7 @@ export default function NewInvoicePage() {
                 onClick={() => setChannel(ch)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
                   channel === ch
-                    ? "bg-blue-600 text-white border-blue-600"
+                    ? "bg-teal-800 text-white border-teal-800"
                     : "bg-white text-gray-600 border-gray-300 hover:border-gray-400"
                 }`}
               >
@@ -286,7 +286,7 @@ export default function NewInvoicePage() {
 
         {/* Tone suggestion */}
         {toneSuggestion && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+          <div className="bg-teal-50 border border-teal-100 rounded-xl px-4 py-3">
             <p className="text-sm text-blue-800">
               <strong>Suggested tone:</strong> {toneSuggestion.tone.charAt(0) + toneSuggestion.tone.slice(1).toLowerCase()} —{" "}
               {toneSuggestion.reason}
@@ -328,7 +328,7 @@ export default function NewInvoicePage() {
                 onClick={() => setEntryStep(s)}
                 className={`w-full text-left px-4 py-3 rounded-xl border-2 text-sm transition-all ${
                   entryStep === s
-                    ? "border-blue-500 bg-blue-50 text-blue-800"
+                    ? "border-teal-600 bg-teal-50 text-blue-800"
                     : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
                 }`}
               >
@@ -345,7 +345,7 @@ export default function NewInvoicePage() {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 resize-none"
             placeholder="e.g. Client was chased in January, paid late"
           />
         </div>
@@ -357,7 +357,7 @@ export default function NewInvoicePage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white rounded-lg py-3 text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+          className="w-full bg-teal-800 text-white rounded-lg py-3 text-sm font-medium hover:bg-teal-900 disabled:opacity-50 transition-colors"
         >
           {loading ? "Creating…" : "Preview sequence →"}
         </button>

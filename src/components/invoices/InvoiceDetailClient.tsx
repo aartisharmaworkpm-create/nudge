@@ -30,7 +30,7 @@ const STATUS_COLORS: Record<InvoiceStatus, string> = {
 
 const MSG_STATUS_COLORS: Record<MessageStatus, string> = {
   SCHEDULED: "text-gray-400",
-  SENT:      "text-blue-500",
+  SENT:      "text-teal-600",
   DELIVERED: "text-green-500",
   FAILED:    "text-red-500",
 };
@@ -138,21 +138,21 @@ export default function InvoiceDetailClient({
 
       {/* Client reply alert */}
       {activeReply && activeReplyMessage && (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-4 mb-6">
+        <div className="bg-teal-50 border border-teal-100 rounded-xl px-4 py-4 mb-6">
           <div className="flex items-start gap-3">
-            <svg className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
             </svg>
             <div className="flex-1">
               <p className="text-sm font-semibold text-blue-800 mb-1">
                 {invoice.client.name} replied — sequence paused
               </p>
-              <p className="text-sm text-blue-700 bg-white/60 rounded-lg px-3 py-2 mb-3">
+              <p className="text-sm text-teal-900 bg-white/60 rounded-lg px-3 py-2 mb-3">
                 &ldquo;{activeReply.body}&rdquo;
               </p>
               <div className="flex flex-wrap gap-2">
                 <button onClick={() => handleReplyAction(activeReply.id, "MARK_RESOLVED")} className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700">Mark resolved</button>
-                <button onClick={() => handleReplyAction(activeReply.id, "RESUME_SEQUENCE")} className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700">Resume sequence</button>
+                <button onClick={() => handleReplyAction(activeReply.id, "RESUME_SEQUENCE")} className="text-xs bg-teal-800 text-white px-3 py-1.5 rounded-lg hover:bg-teal-900">Resume sequence</button>
                 <button onClick={() => handleReplyAction(activeReply.id, "HANDLE_MANUALLY")} className="text-xs bg-white border border-gray-300 text-gray-600 px-3 py-1.5 rounded-lg hover:bg-gray-50">Handle manually</button>
               </div>
             </div>
@@ -186,7 +186,7 @@ export default function InvoiceDetailClient({
           </div>
           <div>
             <p className="text-xs text-gray-400 mb-0.5">Payment link</p>
-            <a href={invoice.paymentLink} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline truncate block">
+            <a href={invoice.paymentLink} target="_blank" rel="noopener noreferrer" className="text-sm text-teal-800 hover:underline truncate block">
               Test link →
             </a>
           </div>
@@ -214,7 +214,7 @@ export default function InvoiceDetailClient({
           {sequence?.status === "PAUSED" && (
             <button
               onClick={handleResume}
-              className="border border-blue-300 text-blue-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors"
+              className="border border-teal-200 text-teal-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-50 transition-colors"
             >
               Resume sequence
             </button>
@@ -236,7 +236,7 @@ export default function InvoiceDetailClient({
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-gray-900">Reminder sequence</h2>
             <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-              sequence.status === "ACTIVE" ? "bg-blue-50 text-blue-700" :
+              sequence.status === "ACTIVE" ? "bg-teal-50 text-teal-900" :
               sequence.status === "PAUSED" ? "bg-gray-100 text-gray-500" :
               sequence.status === "COMPLETED" ? "bg-green-50 text-green-700" :
               "bg-gray-50 text-gray-400"
@@ -260,7 +260,7 @@ export default function InvoiceDetailClient({
                 <div className="flex flex-col items-center">
                   <div className={`w-3 h-3 rounded-full border-2 mt-1 flex-shrink-0 ${
                     msg.status === "DELIVERED" ? "bg-green-500 border-green-500" :
-                    msg.status === "SENT"      ? "bg-blue-500 border-blue-500" :
+                    msg.status === "SENT"      ? "bg-teal-600 border-teal-600" :
                     msg.status === "FAILED"    ? "bg-red-500 border-red-500" :
                     "bg-white border-gray-300"
                   }`} />
@@ -286,8 +286,8 @@ export default function InvoiceDetailClient({
                   </p>
 
                   {msg.reply && (
-                    <div className="mt-2 bg-blue-50 rounded-lg px-3 py-2">
-                      <p className="text-xs text-blue-700">
+                    <div className="mt-2 bg-teal-50 rounded-lg px-3 py-2">
+                      <p className="text-xs text-teal-900">
                         <strong>Reply received:</strong> &ldquo;{msg.reply.body.slice(0, 100)}{msg.reply.body.length > 100 ? "…" : ""}&rdquo;
                       </p>
                     </div>
@@ -317,13 +317,13 @@ export default function InvoiceDetailClient({
                 </label>
               ))}
               {pauseDuration === "custom" && (
-                <input type="date" value={pauseDate} onChange={(e) => setPauseDate(e.target.value)} className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <input type="date" value={pauseDate} onChange={(e) => setPauseDate(e.target.value)} className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600" />
               )}
             </div>
 
             <div className="mb-4">
               <p className="text-xs font-medium text-gray-600 mb-1">Reason (optional)</p>
-              <select value={pauseReason} onChange={(e) => setPauseReason(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <select value={pauseReason} onChange={(e) => setPauseReason(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600">
                 <option value="">Select a reason</option>
                 <option value="In conversation with client">In conversation with client</option>
                 <option value="Payment plan agreed">Payment plan agreed</option>
@@ -334,7 +334,7 @@ export default function InvoiceDetailClient({
 
             <div className="flex gap-2">
               <button onClick={() => setShowPauseModal(false)} className="flex-1 border border-gray-300 text-gray-600 py-2 rounded-lg text-sm hover:bg-gray-50">Cancel</button>
-              <button onClick={handlePause} disabled={pauseLoading} className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+              <button onClick={handlePause} disabled={pauseLoading} className="flex-1 bg-teal-800 text-white py-2 rounded-lg text-sm font-medium hover:bg-teal-900 disabled:opacity-50">
                 {pauseLoading ? "Pausing…" : "Pause reminders"}
               </button>
             </div>

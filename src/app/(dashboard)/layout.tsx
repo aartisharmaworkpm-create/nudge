@@ -19,7 +19,7 @@ export default async function DashboardLayout({
   if (!business) redirect("/onboard");
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-cream">
       <Sidebar businessName={business.name} userEmail={session.user.email ?? ""} />
       <main className="flex-1 overflow-y-auto">
         {children}

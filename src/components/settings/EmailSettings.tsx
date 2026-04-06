@@ -72,7 +72,7 @@ export default function EmailSettings({
                 type="text"
                 value={emailDomain}
                 onChange={(e) => { setEmailDomain(e.target.value); setSaved(false); }}
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
                 placeholder="yourdomain.com"
               />
             </div>
@@ -89,7 +89,7 @@ export default function EmailSettings({
             <button
               type="submit"
               disabled={saving || !isDirty}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-40 transition-colors"
+              className="bg-teal-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-900 disabled:opacity-40 transition-colors"
             >
               {saving ? "Saving…" : "Save"}
             </button>
@@ -114,19 +114,19 @@ export default function EmailSettings({
           </p>
           <ol className="space-y-3 text-sm text-gray-600">
             <li className="flex gap-2">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center">1</span>
+              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-teal-50 text-teal-900 text-xs font-bold flex items-center justify-center">1</span>
               Go to your <strong>Resend dashboard</strong> → Domains → Add domain
             </li>
             <li className="flex gap-2">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center">2</span>
+              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-teal-50 text-teal-900 text-xs font-bold flex items-center justify-center">2</span>
               Enter <strong>{emailDomain}</strong> and copy the DNS records Resend provides
             </li>
             <li className="flex gap-2">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center">3</span>
+              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-teal-50 text-teal-900 text-xs font-bold flex items-center justify-center">3</span>
               Add the DNS records to your domain registrar (usually takes 5–30 minutes to verify)
             </li>
             <li className="flex gap-2">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center">4</span>
+              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-teal-50 text-teal-900 text-xs font-bold flex items-center justify-center">4</span>
               Once verified, emails will send from <code className="text-xs bg-gray-100 px-1 rounded">reminders@{emailDomain}</code>
             </li>
           </ol>

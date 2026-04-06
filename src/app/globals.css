@@ -1,22 +1,29 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Nudge design system */
+  --color-teal-950: #0D3B36;
+  --color-teal-900: #14504A;
+  --color-teal-800: #1A5551;
+  --color-teal-700: #206B65;
+  --color-teal-600: #277E76;
+  --color-teal-500: #2D9B8A;
+  --color-teal-400: #3BBDAB;
+  --color-teal-200: #9FD9D1;
+  --color-teal-100: #D0EDEA;
+  --color-teal-50:  #EBF7F5;
+  --color-cream:    #F0EDE5;
+  --color-cream-dark: #E6E2D9;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #F0EDE5;
+  --foreground: #111111;
 }
 
 body {
