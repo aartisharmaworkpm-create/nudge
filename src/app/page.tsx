@@ -10,6 +10,8 @@ export default function LandingPage() {
       <HowItWorks />
       <Stats />
       <Features />
+      <FounderQuote />
+      <TeaserStrip />
       <FinalCTA />
       <Footer />
     </div>
@@ -331,29 +333,70 @@ function Features() {
   );
 }
 
+// ── Founder quote ─────────────────────────────────────────────────────────────
+
+function FounderQuote() {
+  return (
+    <section className="bg-white py-24">
+      <div className="max-w-2xl mx-auto px-6 text-center">
+        <p className="text-5xl text-teal-200 font-serif leading-none mb-6">&ldquo;&rdquo;</p>
+        <blockquote className="text-xl sm:text-2xl italic font-semibold text-gray-800 leading-relaxed mb-8">
+          I built Nudge because I spent two years chasing invoices manually in a supply chain role — and
+          watched my family business do the same thing every single month. The tools that existed were
+          built for enterprise finance teams. We built Nudge for the businesses actually doing the chasing.
+        </blockquote>
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-10 h-10 rounded-full bg-teal-800 text-white text-sm font-bold flex items-center justify-center">
+            A
+          </div>
+          <p className="font-semibold text-gray-900 text-sm">Ani</p>
+          <p className="text-gray-400 text-xs">Founder, Nudge</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Teaser strip ──────────────────────────────────────────────────────────────
+
+function TeaserStrip() {
+  return (
+    <div className="bg-cream-dark border-y border-cream-dark py-2.5 text-center">
+      <p className="text-xs text-gray-500">
+        <span className="font-bold text-teal-800">Coming Q3 2026:</span>{" "}
+        SaaS payment recovery — automated failed payment rescue for subscription businesses.
+      </p>
+    </div>
+  );
+}
+
 // ── Final CTA ─────────────────────────────────────────────────────────────────
 
 function FinalCTA() {
   return (
-    <section className="bg-teal-800 py-24">
+    <section
+      className="py-28"
+      style={{ background: "linear-gradient(135deg, #0D3B36 0%, #1A5551 50%, #206B65 100%)" }}
+    >
       <div className="max-w-2xl mx-auto px-6 text-center">
-        <h2 className="text-4xl sm:text-5xl font-black text-white mb-5 leading-tight">
-          You have invoices that need chasing.
+        <h2 className="text-5xl sm:text-6xl font-black text-white leading-tight mb-2">
+          Stop chasing.
         </h2>
-        <p className="text-teal-200 text-lg mb-10 leading-relaxed">
-          Add your first one now. Nudge will have a sequence ready in 2 minutes
-          and your first reminder out in under 5.
+        <h2 className="text-5xl sm:text-6xl font-black italic text-teal-400 leading-tight mb-8">
+          Start collecting.
+        </h2>
+        <p className="text-teal-200 text-lg mb-10 leading-relaxed max-w-md mx-auto">
+          Join the waitlist and be among the first businesses to use Nudge — plus get early input into what we build next.
         </p>
         <Link
           href="/signup"
-          className="inline-flex items-center gap-2 bg-white text-teal-900 px-8 py-4 rounded-xl text-base font-bold hover:bg-teal-50 transition-colors shadow-xl shadow-teal-950/30"
+          className="inline-flex items-center gap-2 bg-white text-teal-900 px-8 py-4 rounded-xl text-base font-bold hover:bg-teal-50 transition-colors shadow-xl shadow-black/30 mb-5"
         >
-          Get started free — no card needed
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
+          Join the Waitlist
         </Link>
-        <p className="text-teal-300 text-sm mt-5">Free during beta. No credit card. Cancel whenever.</p>
+        <p className="text-teal-400 text-xs font-bold tracking-widest uppercase">
+          Early access open now — limited spots for Q3 2025 launch
+        </p>
       </div>
     </section>
   );
@@ -363,18 +406,25 @@ function FinalCTA() {
 
 function Footer() {
   return (
-    <footer className="border-t border-cream-dark py-10 bg-cream">
-      <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div>
-          <span className="text-lg font-black text-gray-900 tracking-tight">Nudge.</span>
-          <p className="text-xs text-gray-400 mt-0.5">Stop chasing invoices. Start collecting them.</p>
+    <footer className="bg-gray-950 py-14">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-8 mb-10">
+          <div className="max-w-xs">
+            <span className="text-lg font-black text-white tracking-tight">Nudge.</span>
+            <p className="text-gray-400 text-sm mt-1.5 leading-relaxed">
+              Automated invoice follow-ups that get you paid without the awkward conversations.
+            </p>
+          </div>
+          <div className="flex items-center gap-8 text-sm text-gray-400">
+            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+            <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+            <a href="mailto:hello@nudge.so" className="hover:text-white transition-colors">Contact</a>
+          </div>
         </div>
-        <div className="flex items-center gap-6 text-sm text-gray-400">
-          <Link href="/login" className="hover:text-gray-700 transition-colors">Sign in</Link>
-          <Link href="/signup" className="hover:text-gray-700 transition-colors">Get started</Link>
-          <a href="mailto:hello@nudge.so" className="hover:text-gray-700 transition-colors">hello@nudge.so</a>
+        <div className="border-t border-gray-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-xs text-gray-600">© {new Date().getFullYear()} Nudge. All rights reserved.</p>
+          <a href="#" className="text-xs text-gray-600 hover:text-gray-400 transition-colors">Careers</a>
         </div>
-        <p className="text-xs text-gray-300">© {new Date().getFullYear()} Nudge. All rights reserved.</p>
       </div>
     </footer>
   );
