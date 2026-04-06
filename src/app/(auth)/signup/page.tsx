@@ -49,10 +49,32 @@ export default function SignupPage() {
             <div className={`h-1.5 flex-1 rounded-full ${step >= 1 ? "bg-teal-800" : "bg-gray-200"}`} />
             <div className={`h-1.5 flex-1 rounded-full ${step >= 2 ? "bg-teal-800" : "bg-gray-200"}`} />
           </div>
-          <p className="text-xs text-gray-400">Step {step} of 2 — almost there. No card needed.</p>
+          <div className="flex items-center gap-2">
+            {step === 2 && (
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Go back"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+            )}
+            <p className="text-xs text-gray-400">Step {step} of 2 — almost there. No card needed.</p>
+          </div>
           <h1 className="text-2xl font-bold text-gray-900 mt-1">
             {step === 1 ? "Create your account" : "Your business"}
           </h1>
+          {step === 2 && (
+            <p className="text-xs text-gray-400 mt-0.5">
+              Signing up as <span className="font-medium text-gray-600">{email}</span>{" "}
+              <button type="button" onClick={() => setStep(1)} className="text-teal-700 hover:underline">
+                Change
+              </button>
+            </p>
+          )}
         </div>
 
         <form onSubmit={handleSignup} className="space-y-4 mt-6">
