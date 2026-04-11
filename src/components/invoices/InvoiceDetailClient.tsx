@@ -60,6 +60,8 @@ export default function InvoiceDetailClient({
   const { sequence } = invoice;
 
   const [showPauseModal, setShowPauseModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [pauseDuration, setPauseDuration] = useState<"3" | "7" | "custom" | "manual">("7");
   const [pauseReason, setPauseReason] = useState("");
   const [pauseDate, setPauseDate] = useState("");
@@ -111,6 +113,13 @@ export default function InvoiceDetailClient({
       router.refresh();
     }
     setPauseLoading(false);
+  }
+
+  async function handleDelete() {
+    setDeleteLoading(true);
+    const res = await fetch(`/api/invoices/${invoice.id}`, { method: "DELETE" });
+    if (res.ok) router.push("/dashboard");
+    else setDeleteLoading(false);
   }
 
   async function handleResume() {
@@ -250,6 +259,12 @@ export default function InvoiceDetailClient({
                   Preview
                 </Link>
               )}
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="ml-auto border border-red-200 text-red-500 px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors"
+              >
+                Delete
+              </button>
             </div>
           </div>
 
@@ -347,6 +362,26 @@ export default function InvoiceDetailClient({
           )}
         </div>
       </div>
+
+      {/* Delete modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Delete invoice</h3>
+            <p className="text-sm text-gray-500 mb-6">
+              This will permanently delete the invoice for <strong>{invoice.client.name}</strong> ({invoice.formattedAmount}) and all its reminders. This cannot be undone.
+            </p>
+            <div className="flex gap-2">
+              <button onClick={() => setShowDeleteModal(false)} className="flex-1 border border-gray-300 text-gray-600 py-2 rounded-lg text-sm hover:bg-gray-50">
+                Cancel
+              </button>
+              <button onClick={handleDelete} disabled={deleteLoading} className="flex-1 bg-red-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50">
+                {deleteLoading ? "Deleting…" : "Delete invoice"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Pause modal */}
       {showPauseModal && (
