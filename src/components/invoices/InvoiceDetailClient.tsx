@@ -198,7 +198,14 @@ export default function InvoiceDetailClient({
             <div className="flex items-start justify-between mb-4">
               <div className="min-w-0">
                 <h1 className="text-xl font-bold text-gray-900 truncate">{invoice.client.name}</h1>
-                <p className="text-gray-400 text-xs mt-0.5 truncate">{invoice.client.email ?? invoice.client.whatsapp}</p>
+                <div className="flex flex-col gap-0.5 mt-0.5">
+                  {invoice.client.email && (
+                    <p className="text-gray-400 text-xs truncate">{invoice.client.email}</p>
+                  )}
+                  {invoice.client.whatsapp && (
+                    <p className="text-gray-400 text-xs truncate">{invoice.client.whatsapp}</p>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0 ml-3">
                 <span className={`text-xs px-2.5 py-1 rounded-full border font-medium ${STATUS_COLORS[invoice.status]}`}>
