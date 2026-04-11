@@ -21,31 +21,31 @@ const STEP_LABELS: Record<number, string> = {
 };
 
 const COUNTRIES = [
-  { code: "IN", name: "India",          dial: "+91"  },
-  { code: "US", name: "United States",  dial: "+1"   },
-  { code: "GB", name: "United Kingdom", dial: "+44"  },
-  { code: "AU", name: "Australia",      dial: "+61"  },
-  { code: "CA", name: "Canada",         dial: "+1"   },
-  { code: "AE", name: "UAE",            dial: "+971" },
-  { code: "SG", name: "Singapore",      dial: "+65"  },
-  { code: "ZA", name: "South Africa",   dial: "+27"  },
-  { code: "NG", name: "Nigeria",        dial: "+234" },
-  { code: "KE", name: "Kenya",          dial: "+254" },
-  { code: "PK", name: "Pakistan",       dial: "+92"  },
-  { code: "BD", name: "Bangladesh",     dial: "+880" },
-  { code: "MY", name: "Malaysia",       dial: "+60"  },
-  { code: "PH", name: "Philippines",    dial: "+63"  },
-  { code: "ID", name: "Indonesia",      dial: "+62"  },
-  { code: "DE", name: "Germany",        dial: "+49"  },
-  { code: "FR", name: "France",         dial: "+33"  },
-  { code: "NL", name: "Netherlands",    dial: "+31"  },
-  { code: "IE", name: "Ireland",        dial: "+353" },
-  { code: "IT", name: "Italy",          dial: "+39"  },
-  { code: "ES", name: "Spain",          dial: "+34"  },
-  { code: "PT", name: "Portugal",       dial: "+351" },
-  { code: "BR", name: "Brazil",         dial: "+55"  },
-  { code: "MX", name: "Mexico",         dial: "+52"  },
-  { code: "NZ", name: "New Zealand",    dial: "+64"  },
+  { code: "IN", flag: "🇮🇳", name: "India",          dial: "+91"  },
+  { code: "US", flag: "🇺🇸", name: "United States",  dial: "+1"   },
+  { code: "GB", flag: "🇬🇧", name: "United Kingdom", dial: "+44"  },
+  { code: "AU", flag: "🇦🇺", name: "Australia",      dial: "+61"  },
+  { code: "CA", flag: "🇨🇦", name: "Canada",         dial: "+1"   },
+  { code: "AE", flag: "🇦🇪", name: "UAE",            dial: "+971" },
+  { code: "SG", flag: "🇸🇬", name: "Singapore",      dial: "+65"  },
+  { code: "ZA", flag: "🇿🇦", name: "South Africa",   dial: "+27"  },
+  { code: "NG", flag: "🇳🇬", name: "Nigeria",        dial: "+234" },
+  { code: "KE", flag: "🇰🇪", name: "Kenya",          dial: "+254" },
+  { code: "PK", flag: "🇵🇰", name: "Pakistan",       dial: "+92"  },
+  { code: "BD", flag: "🇧🇩", name: "Bangladesh",     dial: "+880" },
+  { code: "MY", flag: "🇲🇾", name: "Malaysia",       dial: "+60"  },
+  { code: "PH", flag: "🇵🇭", name: "Philippines",    dial: "+63"  },
+  { code: "ID", flag: "🇮🇩", name: "Indonesia",      dial: "+62"  },
+  { code: "DE", flag: "🇩🇪", name: "Germany",        dial: "+49"  },
+  { code: "FR", flag: "🇫🇷", name: "France",         dial: "+33"  },
+  { code: "NL", flag: "🇳🇱", name: "Netherlands",    dial: "+31"  },
+  { code: "IE", flag: "🇮🇪", name: "Ireland",        dial: "+353" },
+  { code: "IT", flag: "🇮🇹", name: "Italy",          dial: "+39"  },
+  { code: "ES", flag: "🇪🇸", name: "Spain",          dial: "+34"  },
+  { code: "PT", flag: "🇵🇹", name: "Portugal",       dial: "+351" },
+  { code: "BR", flag: "🇧🇷", name: "Brazil",         dial: "+55"  },
+  { code: "MX", flag: "🇲🇽", name: "Mexico",         dial: "+52"  },
+  { code: "NZ", flag: "🇳🇿", name: "New Zealand",    dial: "+64"  },
 ];
 
 export default function NewInvoicePage() {
@@ -53,7 +53,7 @@ export default function NewInvoicePage() {
 
   const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
-  const [phoneDialCode, setPhoneDialCode] = useState("+91");
+  const [phoneCountry, setPhoneCountry] = useState("IN");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [amount, setAmount] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -119,7 +119,7 @@ export default function NewInvoicePage() {
     if (c.whatsapp) {
       const match = COUNTRIES.find((co) => c.whatsapp!.startsWith(co.dial));
       if (match) {
-        setPhoneDialCode(match.dial);
+        setPhoneCountry(match.code);
         setPhoneNumber(c.whatsapp.slice(match.dial.length).trim());
       } else {
         setPhoneNumber(c.whatsapp);
@@ -139,7 +139,8 @@ export default function NewInvoicePage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const clientWhatsapp = phoneNumber.trim() ? `${phoneDialCode}${phoneNumber.replace(/\s/g, "")}` : null;
+    const selectedCountry = COUNTRIES.find((c) => c.code === phoneCountry);
+    const clientWhatsapp = phoneNumber.trim() ? `${selectedCountry?.dial ?? ""}${phoneNumber.replace(/\s/g, "")}` : null;
     if (!clientEmail && !clientWhatsapp) {
       setError("Add at least one contact — email or WhatsApp.");
       return;
@@ -237,13 +238,13 @@ export default function NewInvoicePage() {
             <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp number</label>
             <div className="flex">
               <select
-                value={phoneDialCode}
-                onChange={(e) => setPhoneDialCode(e.target.value)}
-                className="border border-r-0 border-gray-300 rounded-l-lg px-2 py-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:z-10"
+                value={phoneCountry}
+                onChange={(e) => setPhoneCountry(e.target.value)}
+                className="border border-r-0 border-gray-300 rounded-l-lg px-2 py-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:z-10 w-24"
               >
                 {COUNTRIES.map((c) => (
-                  <option key={c.code} value={c.dial}>
-                    {c.dial} {c.name}
+                  <option key={c.code} value={c.code}>
+                    {c.flag} {c.dial}
                   </option>
                 ))}
               </select>
