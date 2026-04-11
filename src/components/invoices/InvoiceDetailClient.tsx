@@ -60,7 +60,7 @@ export default function InvoiceDetailClient({
 }) {
   const router = useRouter();
   const { sequence } = invoice;
-  const { showToast, ToastContainer } = useToast();
+  const { showToast, toastNode } = useToast();
 
   const [showPauseModal, setShowPauseModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -164,7 +164,7 @@ export default function InvoiceDetailClient({
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <ToastContainer />
+      {toastNode}
       {/* Celebration */}
       {celebrating && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/20 z-50">

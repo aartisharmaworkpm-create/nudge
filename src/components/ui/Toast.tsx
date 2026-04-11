@@ -47,10 +47,9 @@ export function useToast() {
     setToast({ message, type });
   }
 
-  function ToastContainer() {
-    if (!toast) return null;
-    return <Toast message={toast.message} type={toast.type} onDone={() => setToast(null)} />;
-  }
+  const toastNode = toast
+    ? <Toast key={toast.message + toast.type} message={toast.message} type={toast.type} onDone={() => setToast(null)} />
+    : null;
 
-  return { showToast, ToastContainer };
+  return { showToast, toastNode };
 }

@@ -46,7 +46,7 @@ export default function SequencePreviewClient({
   sequenceStatus: SequenceStatus;
 }) {
   const router = useRouter();
-  const { showToast, ToastContainer } = useToast();
+  const { showToast, toastNode } = useToast();
   const [editedBodies, setEditedBodies] = useState<Record<string, string>>(
     Object.fromEntries(steps.map((s) => [s.id, s.body]))
   );
@@ -91,7 +91,7 @@ export default function SequencePreviewClient({
 
   return (
     <div className="p-8 max-w-2xl mx-auto">
-      <ToastContainer />
+      {toastNode}
       {/* Back */}
       <Link href={`/invoices/${invoiceId}`} className="text-sm text-gray-400 hover:text-gray-600 flex items-center gap-1 mb-5">
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
