@@ -119,7 +119,10 @@ export default async function DashboardPage() {
       {invoices.length === 0 ? (
         <EmptyState businessName={business.name} />
       ) : (
-        <InvoiceList invoices={invoices} businessName={business.name} />
+        <InvoiceList
+          invoices={invoices.map((i) => ({ ...i, amount: Number(i.amount) }))}
+          businessName={business.name}
+        />
       )}
     </div>
   );
