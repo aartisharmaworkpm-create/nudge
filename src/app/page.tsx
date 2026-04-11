@@ -49,7 +49,7 @@ function Nav() {
 function Hero() {
   return (
     <section className="max-w-4xl mx-auto px-6 pt-24 pb-20 text-center">
-      <div className="inline-flex items-center gap-2 border border-teal-700 text-teal-800 text-xs font-bold px-4 py-1.5 rounded-full mb-10 tracking-widest uppercase">
+      <div className="inline-flex items-center gap-2 bg-slate-100 text-slate-500 text-xs font-semibold px-4 py-1.5 rounded-full mb-10 tracking-widest uppercase">
         Receivables Automation
       </div>
 
