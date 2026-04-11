@@ -62,6 +62,7 @@ export default function InvoiceDetailClient({
 
   const [showPauseModal, setShowPauseModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showResumeModal, setShowResumeModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [pauseDuration, setPauseDuration] = useState<"3" | "7" | "custom" | "manual">("7");
   const [pauseReason, setPauseReason] = useState("");
@@ -125,6 +126,7 @@ export default function InvoiceDetailClient({
 
   async function handleResume() {
     await fetch(`/api/invoices/${invoice.id}/resume`, { method: "POST" });
+    setShowResumeModal(false);
     router.refresh();
   }
 
@@ -272,7 +274,7 @@ export default function InvoiceDetailClient({
               )}
               {sequence?.status === "PAUSED" && (
                 <button
-                  onClick={handleResume}
+                  onClick={() => setShowResumeModal(true)}
                   className="border border-teal-200 text-teal-800 px-3 py-2 rounded-lg text-sm font-medium hover:bg-teal-50 transition-colors"
                 >
                   Resume
@@ -397,6 +399,26 @@ export default function InvoiceDetailClient({
           )}
         </div>
       </div>
+
+      {/* Resume modal */}
+      {showResumeModal && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Resume reminders?</h3>
+            <p className="text-sm text-gray-500 mb-6">
+              Reminders for <strong>{invoice.client.name}</strong> will resume immediately and send on their scheduled dates.
+            </p>
+            <div className="flex gap-2">
+              <button onClick={() => setShowResumeModal(false)} className="flex-1 border border-gray-300 text-gray-600 py-2 rounded-lg text-sm hover:bg-gray-50">
+                Cancel
+              </button>
+              <button onClick={handleResume} className="flex-1 bg-teal-800 text-white py-2 rounded-lg text-sm font-medium hover:bg-teal-900">
+                Yes, resume
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete modal */}
       {showDeleteModal && (
