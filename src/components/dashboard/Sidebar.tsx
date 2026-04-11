@@ -46,10 +46,9 @@ export default function Sidebar({
   const [showConfirm, setShowConfirm] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
 
-  async function handleSignOut() {
+  function handleSignOut() {
     setSigningOut(true);
-    await fetch("/api/auth/logout");
-    window.location.href = "/login";
+    window.location.href = "/api/auth/logout";
   }
 
   return (
