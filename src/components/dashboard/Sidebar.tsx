@@ -46,14 +46,20 @@ export default function Sidebar({
   const [showConfirm, setShowConfirm] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
 
-  function handleSignOut() {
+  async function handleSignOut() {
     setSigningOut(true);
-    // Clear all cookies exactly as browser devtools does
-    document.cookie.split(";").forEach((c) => {
-      const name = c.split("=")[0].trim();
-      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
-    });
+    try {
+      // Get CSRF token then POST to NextAuth signout — the only way to clear httpOnly session cookie
+      const csrfRes = await fetch("/api/auth/csrf");
+      const { csrfToken } = await csrfRes.json();
+      await fetch("/api/auth/signout", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ csrfToken }),
+      });
+    } catch (_) {
+      // continue regardless
+    }
     window.location.href = "/login";
   }
 
