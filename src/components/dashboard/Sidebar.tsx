@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { signOut } from "next-auth/react";
 
 const NAV = [
   {
@@ -49,7 +48,8 @@ export default function Sidebar({
 
   async function handleSignOut() {
     setSigningOut(true);
-    await signOut({ callbackUrl: "/login" });
+    await fetch("/api/auth/logout");
+    window.location.href = "/login";
   }
 
   return (

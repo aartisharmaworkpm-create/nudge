@@ -1,27 +1,23 @@
 export const runtime = "nodejs";
 
-import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
-  const cookieStore = await cookies();
-  const allCookies = cookieStore.getAll();
+export async function GET() {
+  const response = NextResponse.json({ ok: true });
 
-  console.log("[logout] cookies found:", allCookies.map((c) => c.name));
+  const expired = "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=Lax";
+  const expiredSecure = "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Lax";
 
-  const response = NextResponse.json({ ok: true, cleared: allCookies.map((c) => c.name) });
-
-  // Delete via response.cookies with all necessary attributes
-  for (const cookie of allCookies) {
-    response.cookies.set(cookie.name, "", {
-      maxAge: 0,
-      expires: new Date(0),
-      path: "/",
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-    });
-  }
+  // NextAuth v5 cookie names (authjs prefix)
+  response.headers.append("Set-Cookie", `authjs.session-token${expired}`);
+  response.headers.append("Set-Cookie", `__Secure-authjs.session-token${expiredSecure}`);
+  response.headers.append("Set-Cookie", `authjs.csrf-token${expired}`);
+  response.headers.append("Set-Cookie", `__Secure-authjs.csrf-token${expiredSecure}`);
+  response.headers.append("Set-Cookie", `authjs.callback-url${expired}`);
+  response.headers.append("Set-Cookie", `__Secure-authjs.callback-url${expiredSecure}`);
+  // NextAuth v4 names just in case
+  response.headers.append("Set-Cookie", `next-auth.session-token${expired}`);
+  response.headers.append("Set-Cookie", `__Secure-next-auth.session-token${expiredSecure}`);
 
   return response;
 }
