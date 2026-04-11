@@ -42,13 +42,13 @@ function LoginForm() {
       redirect: false,
     });
 
-    if (result?.error) {
+    if (!result?.ok) {
       setError("Invalid email or password.");
       setLoading(false);
       return;
     }
 
-    router.push(callbackUrl);
+    window.location.href = callbackUrl;
   }
 
   return (
