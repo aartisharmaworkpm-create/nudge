@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { daysOverdue } from "@/lib/currency";
+import { daysOverdue, CURRENCY_SYMBOLS } from "@/lib/currency";
 
 type ToneSuggestion = { tone: "FRIENDLY" | "FIRM" | "FINAL"; reason: string; entryStep: number };
 type Client = { id: string; name: string; email: string | null; whatsapp: string | null };
@@ -70,12 +70,17 @@ export default function NewInvoicePage() {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const clientRef = useRef<HTMLDivElement>(null);
 
+  const [currency, setCurrency] = useState("USD");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Load clients for autocomplete
+  const today = new Date().toISOString().split("T")[0];
+  const currencySymbol = CURRENCY_SYMBOLS[currency] ?? currency;
+
+  // Load clients and business currency
   useEffect(() => {
     fetch("/api/clients").then((r) => r.json()).then(setClients).catch(() => {});
+    fetch("/api/business").then((r) => r.json()).then((b) => { if (b.currency) setCurrency(b.currency); }).catch(() => {});
   }, []);
 
   // Client autocomplete
@@ -261,16 +266,21 @@ export default function NewInvoicePage() {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Invoice amount <span className="text-red-500">*</span>
             </label>
-            <input
-              type="number"
-              required
-              min="0.01"
-              step="0.01"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
-              placeholder="3200.00"
-            />
+            <div className="flex">
+              <span className="inline-flex items-center border border-r-0 border-gray-300 rounded-l-lg px-3 bg-gray-50 text-sm text-gray-500">
+                {currencySymbol}
+              </span>
+              <input
+                type="number"
+                required
+                min="0.01"
+                step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="flex-1 border border-gray-300 rounded-r-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                placeholder="3200.00"
+              />
+            </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -279,6 +289,7 @@ export default function NewInvoicePage() {
             <input
               type="date"
               required
+              min={today}
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
