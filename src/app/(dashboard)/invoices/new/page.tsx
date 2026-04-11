@@ -57,7 +57,11 @@ export default function NewInvoicePage() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [amount, setAmount] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [paymentType, setPaymentType] = useState<"LINK" | "UPI" | "BANK" | "QR">("LINK");
   const [paymentLink, setPaymentLink] = useState("");
+  const [upiId, setUpiId] = useState("");
+  const [bankDetails, setBankDetails] = useState({ name: "", account: "", ifsc: "" });
+  const [qrUrl, setQrUrl] = useState("");
   const [notes, setNotes] = useState("");
   const [tone, setTone] = useState<"FRIENDLY" | "FIRM" | "FINAL">("FRIENDLY");
   const [entryStep, setEntryStep] = useState(1);
@@ -145,6 +149,24 @@ export default function NewInvoicePage() {
       setError("Add at least one contact — email or WhatsApp.");
       return;
     }
+
+    // Build the payment info string based on type
+    let resolvedPaymentLink = "";
+    if (paymentType === "LINK") resolvedPaymentLink = paymentLink.trim();
+    else if (paymentType === "UPI") resolvedPaymentLink = upiId.trim();
+    else if (paymentType === "QR") resolvedPaymentLink = qrUrl.trim();
+    else if (paymentType === "BANK")
+      resolvedPaymentLink = [
+        bankDetails.name && `Name: ${bankDetails.name}`,
+        bankDetails.account && `Account: ${bankDetails.account}`,
+        bankDetails.ifsc && `IFSC/Sort Code: ${bankDetails.ifsc}`,
+      ].filter(Boolean).join(" | ");
+
+    if (!resolvedPaymentLink) {
+      setError("Add payment details so your client knows how to pay.");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -158,7 +180,8 @@ export default function NewInvoicePage() {
         existingClientId: selectedClient?.id,
         amount: parseFloat(amount),
         dueDate,
-        paymentLink,
+        paymentLink: resolvedPaymentLink,
+        paymentType,
         notes,
         tone,
         entryStep,
@@ -294,31 +317,113 @@ export default function NewInvoicePage() {
               </div>
             </div>
 
-            {/* Payment link */}
+            {/* Payment method */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Payment link <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                How should your client pay? <span className="text-red-500">*</span>
               </label>
-              <input
-                type="url"
-                required
-                value={paymentLink}
-                onChange={(e) => setPaymentLink(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
-                placeholder="https://pay.stripe.com/..."
-              />
-              <div className="flex items-center gap-2 mt-1.5">
-                <span className="text-xs text-gray-400">e.g.</span>
-                {["Stripe", "PayPal", "GoCardless"].map((p) => (
-                  <span key={p} className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{p}</span>
+              {/* Type tabs */}
+              <div className="flex gap-1 mb-3 bg-gray-100 rounded-lg p-1">
+                {([
+                  { value: "LINK", label: "Payment link" },
+                  { value: "UPI",  label: "UPI"          },
+                  { value: "BANK", label: "Bank transfer" },
+                  { value: "QR",   label: "QR code"      },
+                ] as const).map(({ value, label }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setPaymentType(value)}
+                    className={`flex-1 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                      paymentType === value
+                        ? "bg-white text-gray-900 shadow-sm"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    {label}
+                  </button>
                 ))}
-                {paymentLink && (
-                  <a href={paymentLink} target="_blank" rel="noopener noreferrer"
-                    className="ml-auto text-xs text-teal-800 hover:underline flex items-center gap-1">
-                    Test link →
-                  </a>
-                )}
               </div>
+
+              {/* LINK */}
+              {paymentType === "LINK" && (
+                <div>
+                  <input
+                    type="url"
+                    value={paymentLink}
+                    onChange={(e) => setPaymentLink(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                    placeholder="https://pay.stripe.com/..."
+                  />
+                  <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                    <span className="text-xs text-gray-400">e.g.</span>
+                    {["Stripe", "PayPal", "GoCardless"].map((p) => (
+                      <span key={p} className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{p}</span>
+                    ))}
+                    {paymentLink && (
+                      <a href={paymentLink} target="_blank" rel="noopener noreferrer"
+                        className="ml-auto text-xs text-teal-800 hover:underline">
+                        Test link →
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* UPI */}
+              {paymentType === "UPI" && (
+                <div>
+                  <input
+                    type="text"
+                    value={upiId}
+                    onChange={(e) => setUpiId(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                    placeholder="yourname@upi or yourname@paytm"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Your UPI ID will be included in the reminder message.</p>
+                </div>
+              )}
+
+              {/* BANK */}
+              {paymentType === "BANK" && (
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={bankDetails.name}
+                    onChange={(e) => setBankDetails({ ...bankDetails, name: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                    placeholder="Account holder name"
+                  />
+                  <input
+                    type="text"
+                    value={bankDetails.account}
+                    onChange={(e) => setBankDetails({ ...bankDetails, account: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                    placeholder="Account number"
+                  />
+                  <input
+                    type="text"
+                    value={bankDetails.ifsc}
+                    onChange={(e) => setBankDetails({ ...bankDetails, ifsc: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                    placeholder="IFSC code / Sort code"
+                  />
+                </div>
+              )}
+
+              {/* QR */}
+              {paymentType === "QR" && (
+                <div>
+                  <input
+                    type="url"
+                    value={qrUrl}
+                    onChange={(e) => setQrUrl(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                    placeholder="https://link-to-your-qr-image.png"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Upload your QR image to Google Drive / Dropbox and paste the public link here.</p>
+                </div>
+              )}
             </div>
           </div>
 

@@ -102,6 +102,7 @@ model Invoice {
   currency    String        @default("GBP")
   dueDate     DateTime
   paymentLink String
+  paymentType String  @default("LINK")
   notes       String?
   status      InvoiceStatus @default(OUTSTANDING)
   paidAt      DateTime?

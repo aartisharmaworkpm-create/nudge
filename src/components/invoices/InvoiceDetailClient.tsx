@@ -15,6 +15,7 @@ type InvoiceData = {
   formattedDueDate: string;
   daysOverdue: number;
   paymentLink: string;
+  paymentType: string;
   notes: string | null;
   client: Client;
   sequence: (Sequence & {
@@ -217,10 +218,18 @@ export default function InvoiceDetailClient({
                 )}
               </div>
               <div className="col-span-2">
-                <p className="text-xs text-gray-400 mb-0.5">Payment link</p>
-                <a href={invoice.paymentLink} target="_blank" rel="noopener noreferrer" className="text-sm text-teal-800 hover:underline truncate block">
-                  {invoice.paymentLink.replace(/^https?:\/\//, "").slice(0, 40)}{invoice.paymentLink.length > 46 ? "…" : ""} →
-                </a>
+                <p className="text-xs text-gray-400 mb-0.5">
+                  {invoice.paymentType === "UPI" ? "UPI ID" :
+                   invoice.paymentType === "BANK" ? "Bank details" :
+                   invoice.paymentType === "QR" ? "QR code" : "Payment link"}
+                </p>
+                {invoice.paymentType === "LINK" || invoice.paymentType === "QR" ? (
+                  <a href={invoice.paymentLink} target="_blank" rel="noopener noreferrer" className="text-sm text-teal-800 hover:underline truncate block">
+                    {invoice.paymentLink.replace(/^https?:\/\//, "").slice(0, 40)}{invoice.paymentLink.length > 46 ? "…" : ""} →
+                  </a>
+                ) : (
+                  <p className="text-sm text-gray-700 break-all">{invoice.paymentLink}</p>
+                )}
               </div>
             </div>
 
