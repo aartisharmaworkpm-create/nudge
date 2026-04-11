@@ -17,14 +17,44 @@ const STEP_LABELS: Record<number, string> = {
   1: "Day 1 — First reminder",
   2: "Day 7 — Follow-up",
   3: "Day 14 — Final notice",
+  4: "Day 21 — Extended follow-up",
 };
+
+const COUNTRIES = [
+  { code: "IN", name: "India",          dial: "+91"  },
+  { code: "US", name: "United States",  dial: "+1"   },
+  { code: "GB", name: "United Kingdom", dial: "+44"  },
+  { code: "AU", name: "Australia",      dial: "+61"  },
+  { code: "CA", name: "Canada",         dial: "+1"   },
+  { code: "AE", name: "UAE",            dial: "+971" },
+  { code: "SG", name: "Singapore",      dial: "+65"  },
+  { code: "ZA", name: "South Africa",   dial: "+27"  },
+  { code: "NG", name: "Nigeria",        dial: "+234" },
+  { code: "KE", name: "Kenya",          dial: "+254" },
+  { code: "PK", name: "Pakistan",       dial: "+92"  },
+  { code: "BD", name: "Bangladesh",     dial: "+880" },
+  { code: "MY", name: "Malaysia",       dial: "+60"  },
+  { code: "PH", name: "Philippines",    dial: "+63"  },
+  { code: "ID", name: "Indonesia",      dial: "+62"  },
+  { code: "DE", name: "Germany",        dial: "+49"  },
+  { code: "FR", name: "France",         dial: "+33"  },
+  { code: "NL", name: "Netherlands",    dial: "+31"  },
+  { code: "IE", name: "Ireland",        dial: "+353" },
+  { code: "IT", name: "Italy",          dial: "+39"  },
+  { code: "ES", name: "Spain",          dial: "+34"  },
+  { code: "PT", name: "Portugal",       dial: "+351" },
+  { code: "BR", name: "Brazil",         dial: "+55"  },
+  { code: "MX", name: "Mexico",         dial: "+52"  },
+  { code: "NZ", name: "New Zealand",    dial: "+64"  },
+];
 
 export default function NewInvoicePage() {
   const router = useRouter();
 
   const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
-  const [clientWhatsapp, setClientWhatsapp] = useState("");
+  const [phoneDialCode, setPhoneDialCode] = useState("+91");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [amount, setAmount] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [paymentLink, setPaymentLink] = useState("");
@@ -67,8 +97,10 @@ export default function NewInvoicePage() {
       suggestion = { tone: "FRIENDLY", reason: "Invoice is recently due — a friendly opener is appropriate.", entryStep: 1 };
     } else if (overdue <= 14) {
       suggestion = { tone: "FIRM", reason: `${overdue} days overdue — your client has likely seen a friendly reminder already.`, entryStep: 2 };
-    } else {
+    } else if (overdue <= 21) {
       suggestion = { tone: "FINAL", reason: `${overdue} days overdue — a firm final notice is appropriate.`, entryStep: 3 };
+    } else {
+      suggestion = { tone: "FINAL", reason: `${overdue} days overdue — start at the extended follow-up step.`, entryStep: 4 };
     }
     setToneSuggestion(suggestion);
     setTone(suggestion.tone);
@@ -79,7 +111,18 @@ export default function NewInvoicePage() {
     setSelectedClient(c);
     setClientName(c.name);
     setClientEmail(c.email ?? "");
-    setClientWhatsapp(c.whatsapp ?? "");
+    // Parse existing whatsapp into dial code + number if possible
+    if (c.whatsapp) {
+      const match = COUNTRIES.find((co) => c.whatsapp!.startsWith(co.dial));
+      if (match) {
+        setPhoneDialCode(match.dial);
+        setPhoneNumber(c.whatsapp.slice(match.dial.length).trim());
+      } else {
+        setPhoneNumber(c.whatsapp);
+      }
+    } else {
+      setPhoneNumber("");
+    }
     setShowSuggestions(false);
   }
 
@@ -87,11 +130,12 @@ export default function NewInvoicePage() {
     setSelectedClient(null);
     setClientName("");
     setClientEmail("");
-    setClientWhatsapp("");
+    setPhoneNumber("");
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const clientWhatsapp = phoneNumber.trim() ? `${phoneDialCode}${phoneNumber.replace(/\s/g, "")}` : null;
     if (!clientEmail && !clientWhatsapp) {
       setError("Add at least one contact — email or WhatsApp.");
       return;
@@ -105,7 +149,7 @@ export default function NewInvoicePage() {
       body: JSON.stringify({
         clientName,
         clientEmail: clientEmail || null,
-        clientWhatsapp: clientWhatsapp || null,
+        clientWhatsapp,
         existingClientId: selectedClient?.id,
         amount: parseFloat(amount),
         dueDate,
@@ -187,13 +231,26 @@ export default function NewInvoicePage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp number</label>
-            <input
-              type="tel"
-              value={clientWhatsapp}
-              onChange={(e) => setClientWhatsapp(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
-              placeholder="+44 7700 900000"
-            />
+            <div className="flex">
+              <select
+                value={phoneDialCode}
+                onChange={(e) => setPhoneDialCode(e.target.value)}
+                className="border border-r-0 border-gray-300 rounded-l-lg px-2 py-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:z-10"
+              >
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.dial}>
+                    {c.dial} {c.name}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className="flex-1 border border-gray-300 rounded-r-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                placeholder="7700 900000"
+              />
+            </div>
           </div>
         </div>
         <p className="text-xs text-gray-400 -mt-4">Add at least one contact method.</p>
@@ -321,7 +378,7 @@ export default function NewInvoicePage() {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">Start sequence at</label>
           <div className="space-y-2">
-            {([1, 2, 3] as const).map((s) => (
+            {([1, 2, 3, 4] as const).map((s) => (
               <button
                 key={s}
                 type="button"
