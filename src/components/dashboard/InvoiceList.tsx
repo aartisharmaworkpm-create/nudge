@@ -11,7 +11,7 @@ type Invoice = {
   amount: number;
   currency: string;
   dueDate: Date | string;
-  client: { name: string };
+  client: { name: string; email: string | null; whatsapp: string | null };
   sequence: {
     status: string;
     tone: string;
@@ -40,14 +40,26 @@ export default function InvoiceList({
   businessName: string;
 }) {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
-  const filtered = activeFilter
-    ? invoices.filter((i) => i.status === activeFilter)
-    : invoices;
+  const filtered = invoices.filter((i) => {
+    if (activeFilter && i.status !== activeFilter) return false;
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      const amount = formatCurrency(Number(i.amount), i.currency).toLowerCase();
+      return (
+        i.client.name.toLowerCase().includes(q) ||
+        (i.client.email ?? "").toLowerCase().includes(q) ||
+        (i.client.whatsapp ?? "").toLowerCase().includes(q) ||
+        amount.includes(q)
+      );
+    }
+    return true;
+  });
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-      <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between gap-3">
+      <div className="px-5 py-3.5 border-b border-gray-100 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-1">
           {FILTERS.map(({ label, value }) => (
             <button
@@ -63,9 +75,23 @@ export default function InvoiceList({
             </button>
           ))}
         </div>
-        <p className="text-xs text-gray-400 flex-shrink-0">
-          {filtered.length} invoice{filtered.length !== 1 ? "s" : ""}
-        </p>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
+            </svg>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search name, email, amount…"
+              className="pl-8 pr-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 w-52"
+            />
+          </div>
+          <p className="text-xs text-gray-400 flex-shrink-0">
+            {filtered.length} invoice{filtered.length !== 1 ? "s" : ""}
+          </p>
+        </div>
       </div>
 
       <div className="divide-y divide-gray-100">
