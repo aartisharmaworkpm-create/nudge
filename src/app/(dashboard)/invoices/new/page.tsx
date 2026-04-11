@@ -74,7 +74,6 @@ export default function NewInvoicePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const today = new Date().toISOString().split("T")[0];
   const currencySymbol = CURRENCY_SYMBOLS[currency] ?? currency;
 
   // Load clients and business currency
@@ -289,7 +288,6 @@ export default function NewInvoicePage() {
             <input
               type="date"
               required
-              min={today}
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
