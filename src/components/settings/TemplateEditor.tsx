@@ -8,6 +8,7 @@ const STEPS: Record<number, { label: string; desc: string }> = {
   1: { label: "Day 1", desc: "First reminder — invoice just overdue" },
   2: { label: "Day 7", desc: "Follow-up — second reminder" },
   3: { label: "Day 14", desc: "Final notice — last attempt" },
+  4: { label: "Day 21", desc: "Extended follow-up — last chance" },
 };
 
 const TONE_CONFIG: Record<string, { label: string; color: string; badge: string }> = {

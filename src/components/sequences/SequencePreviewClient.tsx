@@ -17,6 +17,7 @@ const STEP_LABELS: Record<number, string> = {
   1: "Day 1 — First reminder",
   2: "Day 7 — Follow-up",
   3: "Day 14 — Final notice",
+  4: "Day 21 — Extended follow-up",
 };
 
 const TONE_COLORS: Record<Tone, string> = {

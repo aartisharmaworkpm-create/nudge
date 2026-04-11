@@ -46,9 +46,9 @@ export type DashboardStats = {
 };
 
 export type SequenceStep = {
-  step: number;        // 1=Day1, 2=Day7, 3=Day14
+  step: number;        // 1=Day1, 2=Day7, 3=Day14, 4=Day21
   dayOffset: number;   // days after invoice due date
-  label: string;       // "Day 1", "Day 7", "Day 14"
+  label: string;       // "Day 1", "Day 7", "Day 14", "Day 21"
   tone: Tone;
   channel: Channel;
   body: string;

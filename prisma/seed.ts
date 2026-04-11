@@ -4,7 +4,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter } as ConstructorParameters<typeof PrismaClient>[0]);
 
-// 9 global default templates: 3 tones × 3 steps
+// 12 global default templates: 3 tones × 4 steps
 // Variables: {{clientName}}, {{businessName}}, {{amount}}, {{currency}}, {{dueDate}}, {{paymentLink}}, {{ownerName}}
 const templates = [
   // ── FRIENDLY ──────────────────────────────────────────────────────────────
@@ -20,6 +20,10 @@ const templates = [
     step: 3, tone: Tone.FRIENDLY, channel: Channel.BOTH,
     body: `Hi {{clientName}}, this is my final note on invoice #{{invoiceRef}} for {{currency}}{{amount}}. I'd really like to get this resolved — if there's a problem, please just reply and we can sort it out. Payment link: {{paymentLink}}. Thanks, {{ownerName}}`,
   },
+  {
+    step: 4, tone: Tone.FRIENDLY, channel: Channel.BOTH,
+    body: `Hi {{clientName}}, just one last follow-up on the invoice for {{currency}}{{amount}} from {{businessName}}. We'd love to resolve this amicably — please pay here: {{paymentLink}} or simply reply and let us know what's happening. Thanks, {{ownerName}}`,
+  },
 
   // ── FIRM ──────────────────────────────────────────────────────────────────
   {
@@ -34,6 +38,10 @@ const templates = [
     step: 3, tone: Tone.FIRM, channel: Channel.BOTH,
     body: `{{clientName}}, invoice #{{invoiceRef}} for {{currency}}{{amount}} is now significantly overdue. This requires your immediate attention. Please pay here: {{paymentLink}}, or reply to discuss next steps. — {{ownerName}}`,
   },
+  {
+    step: 4, tone: Tone.FIRM, channel: Channel.BOTH,
+    body: `{{clientName}}, this is a final firm reminder — invoice #{{invoiceRef}} for {{currency}}{{amount}} is well overdue. Please pay immediately via {{paymentLink}}. If payment is not received, we will be forced to consider further action. — {{ownerName}}`,
+  },
 
   // ── FINAL ─────────────────────────────────────────────────────────────────
   {
@@ -47,6 +55,10 @@ const templates = [
   {
     step: 3, tone: Tone.FINAL, channel: Channel.BOTH,
     body: `{{clientName}}, this is our final message regarding invoice #{{invoiceRef}} — {{currency}}{{amount}} now {{daysOverdue}} days overdue. Please pay via {{paymentLink}} or reply if you'd like to discuss. Thank you. — {{ownerName}}`,
+  },
+  {
+    step: 4, tone: Tone.FINAL, channel: Channel.BOTH,
+    body: `{{clientName}}, invoice #{{invoiceRef}} for {{currency}}{{amount}} remains unpaid after 21 days. This is our last attempt to resolve this directly. Pay here: {{paymentLink}}. Failure to respond may result in formal recovery action. — {{ownerName}}`,
   },
 ];
 
