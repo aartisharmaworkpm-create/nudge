@@ -14,15 +14,26 @@ const STATUS_CONFIG: Record<InvoiceStatus, { label: string; className: string }>
   RESOLVED:    { label: "Resolved",    className: "bg-green-50 text-green-700 border-green-200" },
 };
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
   const business = await db.business.findUnique({ where: { userId: session.user.id } });
   if (!business) redirect("/onboard");
 
+  const { status: statusFilter } = await searchParams;
+  const validStatuses = ["OUTSTANDING", "OVERDUE", "RESOLVED"];
+  const activeFilter = validStatuses.includes(statusFilter ?? "") ? statusFilter! : null;
+
   const invoices = await db.invoice.findMany({
-    where: { businessId: business.id },
+    where: {
+      businessId: business.id,
+      ...(activeFilter ? { status: activeFilter as InvoiceStatus } : {}),
+    },
     include: {
       client: true,
       sequence: { include: { messages: { orderBy: { scheduledAt: "asc" } } } },
@@ -109,15 +120,37 @@ export default async function DashboardPage() {
       )}
 
       {/* Invoice list */}
-      {invoices.length === 0 ? (
+      {invoices.length === 0 && !activeFilter ? (
         <EmptyState businessName={business.name} />
       ) : (
         <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-          <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between">
-            <p className="text-sm font-semibold text-gray-700">All invoices</p>
-            <p className="text-xs text-gray-400">{invoices.length} total</p>
+          <div className="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-1">
+              {[
+                { label: "All",         value: null           },
+                { label: "Outstanding", value: "OUTSTANDING"  },
+                { label: "Overdue",     value: "OVERDUE"      },
+                { label: "Paid",        value: "RESOLVED"     },
+              ].map(({ label, value }) => (
+                <Link
+                  key={label}
+                  href={value ? `/dashboard?status=${value}` : "/dashboard"}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    activeFilter === value
+                      ? "bg-teal-800 text-white"
+                      : "text-gray-500 hover:bg-gray-100"
+                  }`}
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
+            <p className="text-xs text-gray-400 flex-shrink-0">{invoices.length} invoice{invoices.length !== 1 ? "s" : ""}</p>
           </div>
           <div className="divide-y divide-gray-100">
+            {invoices.length === 0 && (
+              <p className="px-5 py-8 text-sm text-center text-gray-400">No {activeFilter?.toLowerCase()} invoices.</p>
+            )}
             {invoices.map((invoice) => {
               const cfg = STATUS_CONFIG[invoice.status];
               const overdueDays = daysOverdue(invoice.dueDate);
