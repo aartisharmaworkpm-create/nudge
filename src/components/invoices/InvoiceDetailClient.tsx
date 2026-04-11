@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useToast } from "@/components/ui/Toast";
 import type { Client, Message, Reply, Sequence, InvoiceStatus, MessageStatus, ReplyAction } from "@/generated/prisma/client";
 import { formatDate } from "@/lib/currency";
 
@@ -59,6 +60,7 @@ export default function InvoiceDetailClient({
 }) {
   const router = useRouter();
   const { sequence } = invoice;
+  const { showToast, ToastContainer } = useToast();
 
   const [showPauseModal, setShowPauseModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -80,21 +82,29 @@ export default function InvoiceDetailClient({
     const res = await fetch(`/api/invoices/${invoice.id}/paid`, { method: "POST" });
     if (res.ok) {
       setCelebrating(true);
+      showToast("Invoice marked as paid!");
       setTimeout(() => router.refresh(), 1500);
+    } else {
+      showToast("Failed to mark as paid.", "error");
     }
     setMarkPaidLoading(false);
   }
 
   async function handleSaveNotes() {
     setNotesLoading(true);
-    await fetch(`/api/invoices/${invoice.id}`, {
+    const res = await fetch(`/api/invoices/${invoice.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ notes }),
     });
     setNotesLoading(false);
-    setNotesSaved(true);
-    setTimeout(() => setNotesSaved(false), 2000);
+    if (res.ok) {
+      setNotesSaved(true);
+      showToast("Notes saved.");
+      setTimeout(() => setNotesSaved(false), 2000);
+    } else {
+      showToast("Failed to save notes.", "error");
+    }
   }
 
   async function handlePause() {
@@ -112,7 +122,10 @@ export default function InvoiceDetailClient({
 
     if (res.ok) {
       setShowPauseModal(false);
+      showToast("Reminders paused successfully.");
       router.refresh();
+    } else {
+      showToast("Failed to pause reminders.", "error");
     }
     setPauseLoading(false);
   }
@@ -125,8 +138,13 @@ export default function InvoiceDetailClient({
   }
 
   async function handleResume() {
-    await fetch(`/api/invoices/${invoice.id}/resume`, { method: "POST" });
+    const res = await fetch(`/api/invoices/${invoice.id}/resume`, { method: "POST" });
     setShowResumeModal(false);
+    if (res.ok) {
+      showToast("Reminders resumed successfully.");
+    } else {
+      showToast("Failed to resume reminders.", "error");
+    }
     router.refresh();
   }
 
@@ -146,6 +164,7 @@ export default function InvoiceDetailClient({
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
+      <ToastContainer />
       {/* Celebration */}
       {celebrating && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/20 z-50">
