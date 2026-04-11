@@ -56,7 +56,7 @@ function Hero() {
       <h1 className="text-6xl sm:text-7xl font-black tracking-tight text-gray-900 leading-[1.05] mb-4">
         Stop chasing invoices.
       </h1>
-      <h1 className="text-6xl sm:text-7xl font-black tracking-tight italic text-teal-500 leading-[1.05] mb-8">
+      <h1 className="text-6xl sm:text-7xl font-black tracking-tight italic text-teal-700 leading-[1.05] mb-8">
         Start collecting them.
       </h1>
 
