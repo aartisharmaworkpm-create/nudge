@@ -5,12 +5,14 @@ export const STEP_OFFSETS: Record<number, number> = {
   1: 1,   // Day 1 after due date
   2: 7,   // Day 7
   3: 14,  // Day 14
+  4: 21,  // Day 21
 };
 
 export const STEP_LABELS: Record<number, string> = {
   1: "Day 1 — First reminder",
   2: "Day 7 — Follow-up",
   3: "Day 14 — Final notice",
+  4: "Day 21 — Extended follow-up",
 };
 
 export function suggestTone(daysOverdue: number): { tone: Tone; reason: string } {
@@ -39,7 +41,15 @@ export function buildSequenceSteps(
   const steps: SequenceStep[] = [];
   const now = new Date();
 
-  for (let step = entryStep; step <= 3; step++) {
+  // If the entry step's natural date is already in the past, shift the whole
+  // schedule forward so step 1 fires in 5 minutes — preserving relative spacing.
+  const entryNatural = new Date(dueDate);
+  entryNatural.setDate(entryNatural.getDate() + STEP_OFFSETS[entryStep]);
+  const shiftMs = entryNatural < now
+    ? now.getTime() + 5 * 60 * 1000 - entryNatural.getTime()
+    : 0;
+
+  for (let step = entryStep; step <= 4; step++) {
     const template = templates.find(
       (t) => t.step === step && t.tone === tone && (t.channel === channel || t.channel === "BOTH")
     );
@@ -48,11 +58,7 @@ export function buildSequenceSteps(
 
     const scheduledAt = new Date(dueDate);
     scheduledAt.setDate(scheduledAt.getDate() + STEP_OFFSETS[step]);
-
-    // If scheduled time is in the past, send in 5 minutes
-    const finalScheduledAt = scheduledAt < now
-      ? new Date(now.getTime() + 5 * 60 * 1000)
-      : scheduledAt;
+    const finalScheduledAt = new Date(scheduledAt.getTime() + shiftMs);
 
     steps.push({
       step,
