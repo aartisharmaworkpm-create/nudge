@@ -177,257 +177,238 @@ export default function NewInvoicePage() {
   }
 
   return (
-    <div className="p-8 max-w-2xl mx-auto">
-      <div className="mb-6">
+    <div className="p-6 max-w-5xl mx-auto">
+      <div className="mb-5">
         <h1 className="text-2xl font-bold text-gray-900">Add invoice</h1>
-        <p className="text-gray-500 text-sm mt-1">5 fields. Nudge handles the rest.</p>
+        <p className="text-gray-500 text-sm mt-1">Fill in the details and Nudge handles the rest.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-2xl p-6 space-y-6">
-        {/* Client name with autocomplete */}
-        <div ref={clientRef} className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Client name <span className="text-red-500">*</span>
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              required
-              value={clientName}
-              onChange={(e) => { setClientName(e.target.value); setSelectedClient(null); setShowSuggestions(true); }}
-              onFocus={() => setShowSuggestions(true)}
-              className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
-              placeholder="Meridian Studio"
-            />
-            {selectedClient && (
-              <button type="button" onClick={clearClient} className="text-xs text-gray-400 hover:text-gray-600 px-2">
-                Clear
-              </button>
-            )}
-          </div>
-          {showSuggestions && clientSuggestions.length > 0 && (
-            <div className="absolute z-10 top-full mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
-              {clientSuggestions.map((c) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => selectClient(c)}
-                  className="w-full text-left px-4 py-3 text-sm hover:bg-teal-50 border-b border-gray-100 last:border-0"
-                >
-                  <p className="font-medium text-gray-900">{c.name}</p>
-                  <p className="text-gray-400 text-xs mt-0.5">{c.email ?? c.whatsapp}</p>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+      <form onSubmit={handleSubmit}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
-        {/* Contact details */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Client email</label>
-            <input
-              type="email"
-              value={clientEmail}
-              onChange={(e) => setClientEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
-              placeholder="sarah@client.com"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp number</label>
-            <div className="flex">
-              <select
-                value={phoneCountry}
-                onChange={(e) => setPhoneCountry(e.target.value)}
-                className="border border-r-0 border-gray-300 rounded-l-lg px-2 py-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:z-10 w-24"
-              >
-                {COUNTRIES.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.flag} {c.dial}
-                  </option>
-                ))}
-              </select>
+          {/* LEFT — client + invoice details */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-4">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Invoice details</p>
+
+            {/* Client name */}
+            <div ref={clientRef} className="relative">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Client name <span className="text-red-500">*</span>
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  required
+                  value={clientName}
+                  onChange={(e) => { setClientName(e.target.value); setSelectedClient(null); setShowSuggestions(true); }}
+                  onFocus={() => setShowSuggestions(true)}
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                  placeholder="Meridian Studio"
+                />
+                {selectedClient && (
+                  <button type="button" onClick={clearClient} className="text-xs text-gray-400 hover:text-gray-600 px-2">Clear</button>
+                )}
+              </div>
+              {showSuggestions && clientSuggestions.length > 0 && (
+                <div className="absolute z-10 top-full mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                  {clientSuggestions.map((c) => (
+                    <button key={c.id} type="button" onClick={() => selectClient(c)}
+                      className="w-full text-left px-4 py-3 text-sm hover:bg-teal-50 border-b border-gray-100 last:border-0">
+                      <p className="font-medium text-gray-900">{c.name}</p>
+                      <p className="text-gray-400 text-xs mt-0.5">{c.email ?? c.whatsapp}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Client email</label>
               <input
-                type="tel"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                className="flex-1 border border-gray-300 rounded-r-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
-                placeholder="7700 900000"
+                type="email"
+                value={clientEmail}
+                onChange={(e) => setClientEmail(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                placeholder="sarah@client.com"
               />
             </div>
-          </div>
-        </div>
-        <p className="text-xs text-gray-400 -mt-4">Add at least one contact method.</p>
 
-        {/* Amount + Due date */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Invoice amount <span className="text-red-500">*</span>
-            </label>
-            <div className="flex">
-              <span className="inline-flex items-center border border-r-0 border-gray-300 rounded-l-lg px-3 bg-gray-50 text-sm text-gray-500">
-                {currencySymbol}
-              </span>
+            {/* WhatsApp */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp number</label>
+              <div className="flex">
+                <select
+                  value={phoneCountry}
+                  onChange={(e) => setPhoneCountry(e.target.value)}
+                  className="border border-r-0 border-gray-300 rounded-l-lg px-2 py-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:z-10 w-[90px] flex-shrink-0"
+                >
+                  {COUNTRIES.map((c) => (
+                    <option key={c.code} value={c.code}>{c.flag} {c.dial}</option>
+                  ))}
+                </select>
+                <input
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="flex-1 min-w-0 border border-gray-300 rounded-r-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                  placeholder="7700 900000"
+                />
+              </div>
+              <p className="text-xs text-gray-400 mt-1">Add at least one contact method.</p>
+            </div>
+
+            {/* Amount + Due date */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Amount <span className="text-red-500">*</span>
+                </label>
+                <div className="flex">
+                  <span className="inline-flex items-center border border-r-0 border-gray-300 rounded-l-lg px-3 bg-gray-50 text-sm text-gray-500 flex-shrink-0">
+                    {currencySymbol}
+                  </span>
+                  <input
+                    type="number"
+                    required
+                    min="0.01"
+                    step="0.01"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="flex-1 min-w-0 border border-gray-300 rounded-r-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                    placeholder="3200.00"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Due date <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                />
+              </div>
+            </div>
+
+            {/* Payment link */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Payment link <span className="text-red-500">*</span>
+              </label>
               <input
-                type="number"
+                type="url"
                 required
-                min="0.01"
-                step="0.01"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="flex-1 border border-gray-300 rounded-r-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
-                placeholder="3200.00"
+                value={paymentLink}
+                onChange={(e) => setPaymentLink(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                placeholder="https://pay.stripe.com/..."
+              />
+              <div className="flex items-center gap-2 mt-1.5">
+                <span className="text-xs text-gray-400">e.g.</span>
+                {["Stripe", "PayPal", "GoCardless"].map((p) => (
+                  <span key={p} className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{p}</span>
+                ))}
+                {paymentLink && (
+                  <a href={paymentLink} target="_blank" rel="noopener noreferrer"
+                    className="ml-auto text-xs text-teal-800 hover:underline flex items-center gap-1">
+                    Test link →
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT — sequence options + notes */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-4">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Sequence options</p>
+
+            {/* Channel */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Send reminders via</label>
+              <div className="flex flex-wrap gap-2">
+                {(["BOTH", "EMAIL", "WHATSAPP"] as const).map((ch) => (
+                  <button key={ch} type="button" onClick={() => setChannel(ch)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                      channel === ch ? "bg-teal-800 text-white border-teal-800" : "bg-white text-gray-600 border-gray-300 hover:border-gray-400"
+                    }`}>
+                    {ch === "BOTH" ? "Email + WhatsApp" : ch === "EMAIL" ? "Email only" : "WhatsApp only"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Tone suggestion */}
+            {toneSuggestion && (
+              <div className="bg-teal-50 border border-teal-100 rounded-xl px-3 py-2.5">
+                <p className="text-xs text-teal-800">
+                  <strong>Suggested:</strong> {toneSuggestion.tone.charAt(0) + toneSuggestion.tone.slice(1).toLowerCase()} — {toneSuggestion.reason}
+                </p>
+              </div>
+            )}
+
+            {/* Tone */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Starting tone</label>
+              <div className="grid grid-cols-3 gap-2">
+                {(["FRIENDLY", "FIRM", "FINAL"] as const).map((t) => {
+                  const cfg = TONE_LABELS[t];
+                  return (
+                    <button key={t} type="button" onClick={() => setTone(t)}
+                      className={`p-2.5 rounded-xl border-2 text-left transition-all ${
+                        tone === t ? cfg.color + " border-current" : "bg-white border-gray-200 hover:border-gray-300"
+                      }`}>
+                      <p className="text-sm font-semibold">{cfg.label}</p>
+                      <p className="text-xs mt-0.5 opacity-70">{cfg.desc}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Entry step */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Start sequence at</label>
+              <div className="space-y-1.5">
+                {([1, 2, 3, 4] as const).map((s) => (
+                  <button key={s} type="button" onClick={() => setEntryStep(s)}
+                    className={`w-full text-left px-3 py-2.5 rounded-xl border-2 text-sm transition-all ${
+                      entryStep === s ? "border-teal-600 bg-teal-50 text-teal-900" : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                    }`}>
+                    <span className="font-medium">{STEP_LABELS[s]}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Notes */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Notes (internal, not sent)</label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={3}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 resize-none"
+                placeholder="e.g. Client was chased in January, paid late"
               />
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Due date <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              required
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
-            />
-          </div>
         </div>
 
-        {/* Payment link */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            How should your client pay? <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="url"
-            required
-            value={paymentLink}
-            onChange={(e) => setPaymentLink(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
-            placeholder="https://pay.stripe.com/... or PayPal link"
-          />
-          <div className="flex gap-3 mt-2">
-            <span className="text-xs text-gray-400">Examples:</span>
-            {["Stripe", "PayPal", "GoCardless"].map((p) => (
-              <span key={p} className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">{p}</span>
-            ))}
-          </div>
-          {paymentLink && (
-            <a
-              href={paymentLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-teal-800 hover:underline mt-1"
-            >
-              Test this link
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </a>
-          )}
+        {/* Submit */}
+        <div className="mt-4 space-y-3">
+          {error && <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-teal-800 text-white rounded-xl py-3 text-sm font-medium hover:bg-teal-900 disabled:opacity-50 transition-colors"
+          >
+            {loading ? "Creating…" : "Preview sequence →"}
+          </button>
         </div>
-
-        {/* Channel */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Send reminders via</label>
-          <div className="flex gap-2">
-            {(["BOTH", "EMAIL", "WHATSAPP"] as const).map((ch) => (
-              <button
-                key={ch}
-                type="button"
-                onClick={() => setChannel(ch)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                  channel === ch
-                    ? "bg-teal-800 text-white border-teal-800"
-                    : "bg-white text-gray-600 border-gray-300 hover:border-gray-400"
-                }`}
-              >
-                {ch === "BOTH" ? "Email + WhatsApp" : ch === "EMAIL" ? "Email only" : "WhatsApp only"}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Tone suggestion */}
-        {toneSuggestion && (
-          <div className="bg-teal-50 border border-teal-100 rounded-xl px-4 py-3">
-            <p className="text-sm text-blue-800">
-              <strong>Suggested tone:</strong> {toneSuggestion.tone.charAt(0) + toneSuggestion.tone.slice(1).toLowerCase()} —{" "}
-              {toneSuggestion.reason}
-            </p>
-          </div>
-        )}
-
-        {/* Tone selection */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Starting tone</label>
-          <div className="grid grid-cols-3 gap-2">
-            {(["FRIENDLY", "FIRM", "FINAL"] as const).map((t) => {
-              const cfg = TONE_LABELS[t];
-              return (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setTone(t)}
-                  className={`p-3 rounded-xl border-2 text-left transition-all ${
-                    tone === t ? cfg.color + " border-current" : "bg-white border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <p className="text-sm font-semibold">{cfg.label}</p>
-                  <p className="text-xs mt-0.5 opacity-70">{cfg.desc}</p>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Entry step */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Start sequence at</label>
-          <div className="space-y-2">
-            {([1, 2, 3, 4] as const).map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setEntryStep(s)}
-                className={`w-full text-left px-4 py-3 rounded-xl border-2 text-sm transition-all ${
-                  entryStep === s
-                    ? "border-teal-600 bg-teal-50 text-blue-800"
-                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
-                }`}
-              >
-                <span className="font-medium">{STEP_LABELS[s]}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Notes */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Notes (internal, not sent)</label>
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            rows={2}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 resize-none"
-            placeholder="e.g. Client was chased in January, paid late"
-          />
-        </div>
-
-        {error && (
-          <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>
-        )}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-teal-800 text-white rounded-lg py-3 text-sm font-medium hover:bg-teal-900 disabled:opacity-50 transition-colors"
-        >
-          {loading ? "Creating…" : "Preview sequence →"}
-        </button>
       </form>
     </div>
   );
