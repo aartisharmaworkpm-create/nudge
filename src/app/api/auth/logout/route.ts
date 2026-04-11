@@ -3,33 +3,23 @@ export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const origin = req.nextUrl.origin;
-  const response = NextResponse.redirect(new URL("/login", origin));
+  // Use NEXTAUTH_URL to avoid Netlify deploy-preview URL issues
+  const base = process.env.NEXTAUTH_URL ?? `https://${req.headers.get("x-forwarded-host") ?? req.headers.get("host")}`;
+  const response = NextResponse.redirect(`${base}/login`);
 
-  // NextAuth v5 (auth.js) uses "authjs" prefix, not "next-auth"
-  const cookieNames = [
-    "authjs.session-token",
-    "__Secure-authjs.session-token",
-    "authjs.csrf-token",
-    "__Secure-authjs.csrf-token",
-    "__Host-authjs.csrf-token",
-    "authjs.callback-url",
-    "__Secure-authjs.callback-url",
-    // legacy v4 names just in case
-    "next-auth.session-token",
-    "__Secure-next-auth.session-token",
-    "next-auth.csrf-token",
-    "__Secure-next-auth.csrf-token",
-  ];
-
-  for (const name of cookieNames) {
-    response.cookies.set(name, "", {
-      maxAge: 0,
-      path: "/",
-      httpOnly: true,
-      secure: req.nextUrl.protocol === "https:",
-      sameSite: "lax",
-    });
+  // Parse every cookie from the request and delete them all
+  const cookieHeader = req.headers.get("cookie") ?? "";
+  if (cookieHeader) {
+    const names = cookieHeader.split(";").map((c) => c.trim().split("=")[0]);
+    for (const name of names) {
+      response.cookies.set(name, "", {
+        maxAge: 0,
+        path: "/",
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax",
+      });
+    }
   }
 
   return response;
