@@ -46,12 +46,14 @@ export default function InvoiceList({
     if (activeFilter && i.status !== activeFilter) return false;
     if (search.trim()) {
       const q = search.toLowerCase();
-      const amount = formatCurrency(Number(i.amount), i.currency).toLowerCase();
+      const amountFormatted = formatCurrency(Number(i.amount), i.currency).toLowerCase();
+      const amountRaw = String(Number(i.amount));
       return (
         i.client.name.toLowerCase().includes(q) ||
         (i.client.email ?? "").toLowerCase().includes(q) ||
         (i.client.whatsapp ?? "").toLowerCase().includes(q) ||
-        amount.includes(q)
+        amountFormatted.includes(q) ||
+        amountRaw.includes(q)
       );
     }
     return true;
