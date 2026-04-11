@@ -178,12 +178,12 @@ export default function NewInvoicePage() {
 
   return (
     <div className="p-8 max-w-2xl mx-auto">
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Add invoice</h1>
         <p className="text-gray-500 text-sm mt-1">5 fields. Nudge handles the rest.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-2xl p-6 space-y-6">
         {/* Client name with autocomplete */}
         <div ref={clientRef} className="relative">
           <label className="block text-sm font-medium text-gray-700 mb-1">
