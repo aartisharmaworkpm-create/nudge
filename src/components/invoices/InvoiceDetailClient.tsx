@@ -83,7 +83,7 @@ export default function InvoiceDetailClient({
     if (res.ok) {
       setCelebrating(true);
       showToast("Invoice marked as paid!");
-      setTimeout(() => router.refresh(), 1500);
+      setTimeout(() => { setCelebrating(false); router.refresh(); }, 3000);
     } else {
       showToast("Failed to mark as paid.", "error");
     }
@@ -167,8 +167,16 @@ export default function InvoiceDetailClient({
       {toastNode}
       {/* Celebration */}
       {celebrating && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/20 z-50">
-          <div className="bg-white rounded-2xl px-8 py-8 shadow-xl text-center max-w-sm mx-4">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/20 z-50" onClick={() => { setCelebrating(false); router.refresh(); }}>
+          <div className="bg-white rounded-2xl px-8 py-8 shadow-xl text-center max-w-sm mx-4 relative" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => { setCelebrating(false); router.refresh(); }}
+              className="absolute top-3 right-3 text-gray-300 hover:text-gray-500 p-1"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
             <p className="text-4xl mb-3">🎉</p>
             <h2 className="text-xl font-bold text-gray-900 mb-1">Invoice paid!</h2>
             <p className="text-gray-500 text-sm">Well done — {invoice.formattedAmount} recovered.</p>
