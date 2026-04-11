@@ -29,24 +29,31 @@ export default async function DashboardPage({
   const validStatuses = ["OUTSTANDING", "OVERDUE", "RESOLVED"];
   const activeFilter = validStatuses.includes(statusFilter ?? "") ? statusFilter! : null;
 
-  const invoices = await db.invoice.findMany({
-    where: {
-      businessId: business.id,
-      ...(activeFilter ? { status: activeFilter as InvoiceStatus } : {}),
-    },
-    include: {
-      client: true,
-      sequence: { include: { messages: { orderBy: { scheduledAt: "asc" } } } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  // Fetch all invoices for stats (unaffected by filter)
+  const [invoices, allInvoices] = await Promise.all([
+    db.invoice.findMany({
+      where: {
+        businessId: business.id,
+        ...(activeFilter ? { status: activeFilter as InvoiceStatus } : {}),
+      },
+      include: {
+        client: true,
+        sequence: { include: { messages: { orderBy: { scheduledAt: "asc" } } } },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    activeFilter
+      ? db.invoice.findMany({ where: { businessId: business.id }, select: { id: true, status: true, amount: true, currency: true, paidAt: true, dueDate: true, client: { select: { name: true } } } })
+      : null,
+  ]);
 
-  // Stats
-  const outstanding = invoices.filter((i) => i.status === "OUTSTANDING");
-  const overdue = invoices.filter((i) => i.status === "OVERDUE");
+  // Stats always use full dataset
+  const statsSource = allInvoices ?? invoices;
+  const outstanding = statsSource.filter((i) => i.status === "OUTSTANDING");
+  const overdue = statsSource.filter((i) => i.status === "OVERDUE");
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const resolvedThisMonth = invoices.filter(
+  const resolvedThisMonth = statsSource.filter(
     (i) => i.status === "RESOLVED" && i.paidAt && i.paidAt >= startOfMonth
   );
   const totalRecoveredThisMonth = resolvedThisMonth.reduce(
