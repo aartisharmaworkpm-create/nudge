@@ -48,7 +48,7 @@ export default function Sidebar({
 
   function handleSignOut() {
     setSigningOut(true);
-    window.location.href = "/api/auth/logout";
+    window.location.href = "/logout";
   }
 
   return (
