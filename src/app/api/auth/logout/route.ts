@@ -7,11 +7,20 @@ export async function GET(req: NextRequest) {
   const cookieStore = await cookies();
   const allCookies = cookieStore.getAll();
 
-  // Return 200 so the browser processes Set-Cookie before the client redirects
-  const response = NextResponse.json({ ok: true });
+  console.log("[logout] cookies found:", allCookies.map((c) => c.name));
 
+  const response = NextResponse.json({ ok: true, cleared: allCookies.map((c) => c.name) });
+
+  // Delete via response.cookies with all necessary attributes
   for (const cookie of allCookies) {
-    response.cookies.delete(cookie.name);
+    response.cookies.set(cookie.name, "", {
+      maxAge: 0,
+      expires: new Date(0),
+      path: "/",
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+    });
   }
 
   return response;
