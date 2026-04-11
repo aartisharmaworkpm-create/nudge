@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { signOut } from "next-auth/react";
+import { logout } from "@/app/actions/auth";
 
 const NAV = [
   {
@@ -45,13 +45,6 @@ export default function Sidebar({
 }) {
   const pathname = usePathname();
   const [showConfirm, setShowConfirm] = useState(false);
-  const [signingOut, setSigningOut] = useState(false);
-
-  async function handleSignOut() {
-    setSigningOut(true);
-    await signOut({ redirect: false });
-    window.location.href = "/login";
-  }
 
   return (
     <>
@@ -112,19 +105,18 @@ export default function Sidebar({
               <button
                 type="button"
                 onClick={() => setShowConfirm(false)}
-                disabled={signingOut}
-                className="flex-1 border border-gray-300 rounded-lg py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                className="flex-1 border border-gray-300 rounded-lg py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
-              <button
-                type="button"
-                onClick={handleSignOut}
-                disabled={signingOut}
-                className="flex-1 bg-teal-800 text-white rounded-lg py-2 text-sm font-medium hover:bg-teal-900 transition-colors disabled:opacity-50"
-              >
-                {signingOut ? "Signing out…" : "Yes, sign out"}
-              </button>
+              <form action={logout} className="flex-1">
+                <button
+                  type="submit"
+                  className="w-full bg-teal-800 text-white rounded-lg py-2 text-sm font-medium hover:bg-teal-900 transition-colors"
+                >
+                  Yes, sign out
+                </button>
+              </form>
             </div>
           </div>
         </div>
