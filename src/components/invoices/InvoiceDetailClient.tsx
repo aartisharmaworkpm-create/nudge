@@ -268,11 +268,13 @@ export default function InvoiceDetailClient({
                   Preview
                 </Link>
               )}
+            </div>
+            <div className="pt-2 border-t border-gray-100 mt-2">
               <button
                 onClick={() => setShowDeleteModal(true)}
-                className="ml-auto border border-red-200 text-red-500 px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors"
+                className="w-full border border-red-200 text-red-500 px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors"
               >
-                Delete
+                Delete invoice
               </button>
             </div>
           </div>
