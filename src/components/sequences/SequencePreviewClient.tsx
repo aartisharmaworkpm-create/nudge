@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type { Channel, Tone, SequenceStatus } from "@/generated/prisma/client";
 
 type Step = {
@@ -87,6 +88,14 @@ export default function SequencePreviewClient({
 
   return (
     <div className="p-8 max-w-2xl mx-auto">
+      {/* Back */}
+      <Link href={`/invoices/${invoiceId}`} className="text-sm text-gray-400 hover:text-gray-600 flex items-center gap-1 mb-5">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to invoice
+      </Link>
+
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Preview sequence</h1>
