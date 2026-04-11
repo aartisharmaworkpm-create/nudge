@@ -1,9 +1,13 @@
 import Link from "next/link";
+import { auth } from "@/lib/auth";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
+
   return (
     <div className="min-h-screen bg-cream text-gray-900 font-sans">
-      <Nav />
+      <Nav isLoggedIn={isLoggedIn} />
       <Hero />
       <SocialProof />
       <Pain />
@@ -20,24 +24,35 @@ export default function LandingPage() {
 
 // ── Nav ───────────────────────────────────────────────────────────────────────
 
-function Nav() {
+function Nav({ isLoggedIn }: { isLoggedIn: boolean }) {
   return (
     <header className="sticky top-0 z-50 bg-cream/95 backdrop-blur-sm border-b border-cream-dark">
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <span className="text-xl font-black text-gray-900 tracking-tight">Nudge.</span>
         <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="text-sm text-gray-500 hover:text-gray-900 px-3 py-1.5 transition-colors"
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/signup"
-            className="text-sm font-semibold bg-teal-800 text-white px-5 py-2.5 rounded-lg hover:bg-teal-900 transition-colors"
-          >
-            Join the waitlist
-          </Link>
+          {isLoggedIn ? (
+            <Link
+              href="/dashboard"
+              className="text-sm font-semibold bg-teal-800 text-white px-5 py-2.5 rounded-lg hover:bg-teal-900 transition-colors"
+            >
+              Dashboard →
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="text-sm text-gray-500 hover:text-gray-900 px-3 py-1.5 transition-colors"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/signup"
+                className="text-sm font-semibold bg-teal-800 text-white px-5 py-2.5 rounded-lg hover:bg-teal-900 transition-colors"
+              >
+                Join the waitlist
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>
