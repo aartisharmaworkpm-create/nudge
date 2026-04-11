@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { signOut } from "next-auth/react";
 
 const NAV = [
   {
@@ -48,19 +49,7 @@ export default function Sidebar({
 
   async function handleSignOut() {
     setSigningOut(true);
-    try {
-      // Get CSRF token then POST to NextAuth signout — the only way to clear httpOnly session cookie
-      const csrfRes = await fetch("/api/auth/csrf");
-      const { csrfToken } = await csrfRes.json();
-      await fetch("/api/auth/signout", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ csrfToken }),
-      });
-    } catch (_) {
-      // continue regardless
-    }
-    window.location.href = "/login";
+    await signOut({ callbackUrl: "/login" });
   }
 
   return (
