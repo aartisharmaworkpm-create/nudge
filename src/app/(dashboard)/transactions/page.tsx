@@ -16,25 +16,33 @@ type RzpPayment = {
 };
 
 // ── Fetch all payments for a Razorpay subscription ────────────────────────────
-async function fetchSubscriptionPayments(subscriptionId: string): Promise<RzpPayment[]> {
+async function fetchSubscriptionPayments(
+  subscriptionId: string
+): Promise<{ payments: RzpPayment[]; error: string | null }> {
   const keyId     = process.env.RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
-  if (!keyId || !keySecret) return [];
+  if (!keyId || !keySecret) return { payments: [], error: "Razorpay credentials not configured." };
 
   try {
-    const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
-    const res  = await fetch(
-      `https://api.razorpay.com/v1/payments?subscription_id=${subscriptionId}&count=50`,
+    const basicAuth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+
+    // Correct endpoint: GET /v1/subscriptions/{id}/payments
+    const res = await fetch(
+      `https://api.razorpay.com/v1/subscriptions/${subscriptionId}/payments`,
       {
-        headers: { Authorization: `Basic ${auth}` },
-        next: { revalidate: 300 },  // refresh every 5 min
+        headers: { Authorization: `Basic ${basicAuth}` },
+        next: { revalidate: 300 },
       }
     );
-    if (!res.ok) return [];
+
     const json = await res.json();
-    return (json.items ?? []) as RzpPayment[];
-  } catch {
-    return [];
+    if (!res.ok) {
+      return { payments: [], error: json?.error?.description ?? `Razorpay error (${res.status})` };
+    }
+
+    return { payments: (json.items ?? []) as RzpPayment[], error: null };
+  } catch (err) {
+    return { payments: [], error: String(err) };
   }
 }
 
@@ -81,11 +89,11 @@ export default async function TransactionsPage() {
   const business = await db.business.findUnique({ where: { userId: session.user.id } });
   if (!business) redirect("/onboard");
 
-  const payments = business.razorpaySubscriptionId
+  const { payments, error: fetchError } = business.razorpaySubscriptionId
     ? await fetchSubscriptionPayments(business.razorpaySubscriptionId)
-    : [];
+    : { payments: [], error: null };
 
-  // Sort newest first (Razorpay returns newest first already, but be safe)
+  // Sort newest first
   const sorted = [...payments].sort((a, b) => b.created_at - a.created_at);
 
   return (
@@ -95,6 +103,12 @@ export default async function TransactionsPage() {
         <h1 className="text-2xl font-bold text-gray-900">Transactions</h1>
         <p className="text-gray-500 text-sm mt-0.5">Your billing history on Nudge</p>
       </div>
+
+      {fetchError && (
+        <div className="mb-6 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
+          Could not load transactions: {fetchError}
+        </div>
+      )}
 
       {sorted.length === 0 ? (
         /* ── Empty state ── */
