@@ -8,6 +8,7 @@ import type { InvoiceStatus } from "@/generated/prisma/client";
 import WelcomeBanner from "@/components/dashboard/WelcomeBanner";
 import EmptyState from "@/components/dashboard/EmptyState";
 import InvoiceList from "@/components/dashboard/InvoiceList";
+import { PLANS, isTrialActive } from "@/lib/plans";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -58,9 +59,14 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-500 text-sm mt-0.5">
-            {business.name}
-          </p>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="text-gray-500 text-sm">{business.name}</p>
+            <PlanBadge
+              plan={business.plan ?? "TRIAL"}
+              trialEndsAt={business.trialEndsAt ?? null}
+              subscriptionStatus={business.subscriptionStatus ?? null}
+            />
+          </div>
         </div>
         <Link
           href="/invoices/new"
@@ -125,6 +131,56 @@ export default async function DashboardPage() {
         />
       )}
     </div>
+  );
+}
+
+function PlanBadge({
+  plan,
+  trialEndsAt,
+  subscriptionStatus,
+}: {
+  plan: string;
+  trialEndsAt: Date | null;
+  subscriptionStatus: string | null;
+}) {
+  if (plan === "TRIAL") {
+    const active = isTrialActive(trialEndsAt);
+    const daysLeft = trialEndsAt
+      ? Math.max(0, Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86400000))
+      : 0;
+    return active ? (
+      <Link href="/settings?tab=billing"
+        className="inline-flex items-center gap-1 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full hover:bg-amber-100 transition-colors">
+        Trial · {daysLeft}d left
+      </Link>
+    ) : (
+      <Link href="/settings?tab=billing"
+        className="inline-flex items-center gap-1 text-xs font-semibold bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded-full hover:bg-red-100 transition-colors">
+        Trial ended · Upgrade
+      </Link>
+    );
+  }
+  if (plan === "CANCELED") {
+    return (
+      <Link href="/settings?tab=billing"
+        className="inline-flex items-center gap-1 text-xs font-semibold bg-gray-100 text-gray-500 border border-gray-200 px-2 py-0.5 rounded-full hover:bg-gray-200 transition-colors">
+        Cancelled
+      </Link>
+    );
+  }
+  const label = PLANS[plan as keyof typeof PLANS]?.label ?? plan;
+  const isOverdue = subscriptionStatus === "past_due";
+  return isOverdue ? (
+    <Link href="/settings?tab=billing"
+      className="inline-flex items-center gap-1 text-xs font-semibold bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded-full hover:bg-red-100 transition-colors">
+      {label} · Payment overdue
+    </Link>
+  ) : (
+    <Link href="/settings?tab=billing"
+      className="inline-flex items-center gap-1 text-xs font-semibold bg-teal-50 text-teal-800 border border-teal-100 px-2 py-0.5 rounded-full hover:bg-teal-100 transition-colors">
+      <svg className="w-2.5 h-2.5 fill-teal-500" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4"/></svg>
+      {label}
+    </Link>
   );
 }
 
