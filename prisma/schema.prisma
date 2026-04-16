@@ -72,14 +72,12 @@ model Business {
   whatsappVerified Boolean   @default(false)
 
   // Billing
-  plan                 String    @default("TRIAL")   // TRIAL | STARTER | GROWTH | PRO | CANCELED
-  trialEndsAt          DateTime?
-  stripeCustomerId     String?   @unique
-  stripeSubscriptionId String?   @unique
-  razorpayCustomerId   String?   @unique
-  razorpaySubscriptionId String? @unique
-  subscriptionStatus   String?                       // active | trialing | past_due | canceled
-  currentPeriodEnd     DateTime?
+  plan                   String    @default("TRIAL")  // TRIAL | STARTER | GROWTH | PRO | CANCELED
+  trialEndsAt            DateTime?
+  razorpayCustomerId     String?   @unique
+  razorpaySubscriptionId String?   @unique
+  subscriptionStatus     String?                      // active | past_due | canceled
+  currentPeriodEnd       DateTime?
 
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt

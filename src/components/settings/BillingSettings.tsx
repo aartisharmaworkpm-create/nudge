@@ -10,7 +10,6 @@ type Props = {
   subscriptionStatus: string | null;
   currentPeriodEnd: Date | string | null;
   invoicesThisMonth: number;
-  currency: string; // business currency to decide Razorpay vs Stripe
 };
 
 const PLAN_HIGHLIGHTS: Record<string, string[]> = {
@@ -25,29 +24,15 @@ export default function BillingSettings({
   subscriptionStatus,
   currentPeriodEnd,
   invoicesThisMonth,
-  currency,
 }: Props) {
   const { showToast, toastNode } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
-  const useRazorpay = currency === "INR";
 
   const currentPlan = PLANS[plan] ?? PLANS.TRIAL;
   const trialActive = isTrialActive(trialEndsAt ? new Date(trialEndsAt) : null);
   const trialDaysLeft = trialEndsAt
     ? Math.max(0, Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86400000))
     : 0;
-
-  async function handleStripePlan(planId: PlanId) {
-    setLoading(planId);
-    const res = await fetch("/api/billing/stripe/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ planId }),
-    });
-    const data = await res.json();
-    if (!res.ok) { showToast(data.error ?? "Failed to start checkout.", "error"); setLoading(null); return; }
-    window.location.href = data.url;
-  }
 
   async function handleRazorpayPlan(planId: PlanId) {
     setLoading(planId);
@@ -84,22 +69,12 @@ export default function BillingSettings({
     setLoading(null);
   }
 
-  async function handleManage() {
-    setLoading("manage");
-    if (useRazorpay) {
-      showToast("Manage your subscription via Razorpay dashboard.", "error");
-      setLoading(null);
-      return;
-    }
-    const res = await fetch("/api/billing/stripe/portal", { method: "POST" });
-    const data = await res.json();
-    if (!res.ok) { showToast(data.error ?? "Failed.", "error"); setLoading(null); return; }
-    window.location.href = data.url;
-  }
-
   return (
     <div className="space-y-4">
       {toastNode}
+
+      {/* Razorpay checkout script */}
+      <script src="https://checkout.razorpay.com/v1/checkout.js" async />
 
       {/* Current plan status */}
       <div className="bg-white border border-gray-200 rounded-2xl p-6">
@@ -130,7 +105,7 @@ export default function BillingSettings({
             </p>
             {currentPeriodEnd && plan !== "TRIAL" && (
               <p className="text-xs text-gray-400 mt-0.5">
-                Renews {new Date(currentPeriodEnd).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                Renews {new Date(currentPeriodEnd).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
               </p>
             )}
             {plan === "TRIAL" && !trialActive && (
@@ -139,7 +114,7 @@ export default function BillingSettings({
           </div>
 
           {/* Usage bar */}
-          <div className="flex-shrink-0 text-right">
+          <div className="flex-shrink-0">
             <div className="w-32">
               <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                 <div
@@ -153,30 +128,13 @@ export default function BillingSettings({
             </div>
           </div>
         </div>
-
-        {PAID_PLANS.includes(plan as PlanId) && (
-          <button
-            onClick={handleManage}
-            disabled={loading === "manage"}
-            className="mt-4 border border-gray-300 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-50 transition-colors"
-          >
-            {loading === "manage" ? "Loading…" : "Manage subscription →"}
-          </button>
-        )}
       </div>
-
-      {/* Razorpay script */}
-      {useRazorpay && (
-        <script src="https://checkout.razorpay.com/v1/checkout.js" async />
-      )}
 
       {/* Plan cards */}
       <div className="grid grid-cols-1 gap-3">
         {(["STARTER", "GROWTH", "PRO"] as const).map((planId) => {
           const p = PLANS[planId];
           const isCurrent = plan === planId;
-          const price = useRazorpay ? `₹${p.priceINR.toLocaleString("en-IN")}/mo` : `$${p.priceUSD}/mo`;
-          const overage = useRazorpay ? `₹${p.overage.inr}/invoice` : `$${p.overage.usd}/invoice`;
 
           return (
             <div
@@ -196,7 +154,7 @@ export default function BillingSettings({
                       <span className="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full border border-amber-100">Popular</span>
                     )}
                   </div>
-                  <ul className="space-y-1 mb-3">
+                  <ul className="space-y-1 mb-2">
                     {PLAN_HIGHLIGHTS[planId].map((h) => (
                       <li key={h} className="flex items-center gap-1.5 text-xs text-gray-600">
                         <svg className="w-3.5 h-3.5 text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -205,14 +163,14 @@ export default function BillingSettings({
                         {h}
                       </li>
                     ))}
-                    <li className="text-xs text-gray-400 mt-1">Overage: {overage}</li>
+                    <li className="text-xs text-gray-400 mt-0.5">Overage: ₹{p.overage}/invoice</li>
                   </ul>
                 </div>
                 <div className="flex-shrink-0 text-right">
-                  <p className="text-lg font-bold text-gray-900">{price}</p>
+                  <p className="text-lg font-bold text-gray-900">₹{p.priceINR.toLocaleString("en-IN")}<span className="text-xs font-normal text-gray-400">/mo</span></p>
                   {!isCurrent && (
                     <button
-                      onClick={() => useRazorpay ? handleRazorpayPlan(planId) : handleStripePlan(planId)}
+                      onClick={() => handleRazorpayPlan(planId)}
                       disabled={!!loading}
                       className="mt-2 bg-teal-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-900 disabled:opacity-50 transition-colors whitespace-nowrap"
                     >
@@ -226,9 +184,7 @@ export default function BillingSettings({
         })}
       </div>
 
-      <p className="text-xs text-gray-400 text-center">
-        {useRazorpay ? "Payments processed by Razorpay." : "Payments processed by Stripe."} Cancel anytime.
-      </p>
+      <p className="text-xs text-gray-400 text-center">Payments processed securely by Razorpay. Cancel anytime.</p>
     </div>
   );
 }

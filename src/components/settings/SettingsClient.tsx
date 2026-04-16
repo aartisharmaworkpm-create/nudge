@@ -176,7 +176,6 @@ export default function SettingsClient({
               subscriptionStatus={billing.subscriptionStatus}
               currentPeriodEnd={billing.currentPeriodEnd}
               invoicesThisMonth={billing.invoicesThisMonth}
-              currency={currentBusiness.currency}
             />
           )}
         </div>

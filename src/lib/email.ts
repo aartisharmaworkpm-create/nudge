@@ -1,6 +1,10 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+let _resend: Resend | null = null;
+function getResend() {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY!);
+  return _resend;
+}
 
 export type SendEmailParams = {
   to: string;
@@ -37,7 +41,7 @@ export async function sendEmail(params: SendEmailParams): Promise<SendEmailResul
   `;
 
   try {
-    const result = await resend.emails.send({
+    const result = await getResend().emails.send({
       from,
       to: params.to,
       subject: params.subject,

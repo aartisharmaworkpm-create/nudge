@@ -3,15 +3,11 @@ export type PlanId = "TRIAL" | "STARTER" | "GROWTH" | "PRO" | "CANCELED";
 export type Plan = {
   id: PlanId;
   label: string;
-  priceUSD: number;        // USD display price
-  priceINR: number;        // INR display price
+  priceINR: number;
   invoicesPerMonth: number;
   whatsapp: boolean;
   sequences: number | "unlimited";
-  overage: { usd: number; inr: number };
-  // Stripe price IDs
-  stripePriceId: string;
-  // Razorpay plan IDs
+  overage: number; // INR per invoice
   razorpayPlanId: string;
 };
 
@@ -19,61 +15,51 @@ export const PLANS: Record<PlanId, Plan> = {
   TRIAL: {
     id: "TRIAL",
     label: "Trial",
-    priceUSD: 0,
     priceINR: 0,
     invoicesPerMonth: 5,
     whatsapp: true,
     sequences: 1,
-    overage: { usd: 0, inr: 0 },
-    stripePriceId: "",
+    overage: 0,
     razorpayPlanId: "",
   },
   STARTER: {
     id: "STARTER",
     label: "Starter",
-    priceUSD: 49,
     priceINR: 4099,
     invoicesPerMonth: 40,
     whatsapp: false,
     sequences: 1,
-    overage: { usd: 1.5, inr: 125 },
-    stripePriceId: process.env.STRIPE_PRICE_STARTER ?? "",
+    overage: 125,
     razorpayPlanId: process.env.RAZORPAY_PLAN_STARTER ?? "",
   },
   GROWTH: {
     id: "GROWTH",
     label: "Growth",
-    priceUSD: 129,
     priceINR: 10799,
     invoicesPerMonth: 150,
     whatsapp: true,
     sequences: 3,
-    overage: { usd: 0.8, inr: 67 },
-    stripePriceId: process.env.STRIPE_PRICE_GROWTH ?? "",
+    overage: 67,
     razorpayPlanId: process.env.RAZORPAY_PLAN_GROWTH ?? "",
   },
   PRO: {
     id: "PRO",
     label: "Pro",
-    priceUSD: 249,
     priceINR: 20799,
     invoicesPerMonth: 400,
     whatsapp: true,
     sequences: Infinity as unknown as "unlimited",
-    overage: { usd: 0.6, inr: 50 },
-    stripePriceId: process.env.STRIPE_PRICE_PRO ?? "",
+    overage: 50,
     razorpayPlanId: process.env.RAZORPAY_PLAN_PRO ?? "",
   },
   CANCELED: {
     id: "CANCELED",
     label: "Canceled",
-    priceUSD: 0,
     priceINR: 0,
     invoicesPerMonth: 0,
     whatsapp: false,
     sequences: 0,
-    overage: { usd: 0, inr: 0 },
-    stripePriceId: "",
+    overage: 0,
     razorpayPlanId: "",
   },
 };
@@ -81,7 +67,7 @@ export const PLANS: Record<PlanId, Plan> = {
 export const PAID_PLANS: PlanId[] = ["STARTER", "GROWTH", "PRO"];
 
 export function getPlan(planId: string): Plan {
-  return PLANS[(planId as PlanId) ?? "TRIAL"] ?? PLANS.TRIAL;
+  return PLANS[(planId as PlanId)] ?? PLANS.TRIAL;
 }
 
 export function isTrialActive(trialEndsAt: Date | null): boolean {
