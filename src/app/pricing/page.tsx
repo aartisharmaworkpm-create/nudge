@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { getResolvedPlans } from "@/lib/razorpay-plans";
 import PricingCards from "@/components/pricing/PricingCards";
+import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 
 export const revalidate = 3600; // refresh pricing every hour
@@ -86,9 +87,7 @@ export default async function PricingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-gray-100 py-8 text-center">
-        <p className="text-xs text-gray-400">© {new Date().getFullYear()} Nudge. Payments via Razorpay.</p>
-      </footer>
+      <Footer />
     </div>
   );
 }
