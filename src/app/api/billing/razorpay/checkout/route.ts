@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     const customer = await razorpay.customers.create({
       name: business.name,
       email: user?.email ?? "",
-      fail_existing: "0",
+      fail_existing: 0,
     });
     customerId = customer.id;
     await db.business.update({ where: { id: business.id }, data: { razorpayCustomerId: customerId } });
