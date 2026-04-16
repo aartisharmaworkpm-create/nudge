@@ -6,8 +6,10 @@ import TemplateEditor from "./TemplateEditor";
 import EmailSettings from "./EmailSettings";
 import WhatsAppSettings from "./WhatsAppSettings";
 import ProfileSettings from "./ProfileSettings";
+import BillingSettings from "./BillingSettings";
+import type { PlanId } from "@/lib/plans";
 
-type Tab = "profile" | "business" | "templates" | "email" | "whatsapp";
+type Tab = "profile" | "business" | "templates" | "email" | "whatsapp" | "billing";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   {
@@ -47,6 +49,15 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     ),
   },
   {
+    id: "billing",
+    label: "Billing",
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+      </svg>
+    ),
+  },
+  {
     id: "whatsapp",
     label: "WhatsApp",
     icon: (
@@ -61,6 +72,14 @@ export type UserData = {
   name: string | null;
   email: string;
   hasPassword: boolean;
+};
+
+export type BillingData = {
+  plan: PlanId;
+  trialEndsAt: Date | string | null;
+  subscriptionStatus: string | null;
+  currentPeriodEnd: Date | string | null;
+  invoicesThisMonth: number;
 };
 
 export type BusinessData = {
@@ -85,10 +104,12 @@ export default function SettingsClient({
   user,
   business,
   templates,
+  billing,
 }: {
   user: UserData;
   business: BusinessData;
   templates: TemplateData[];
+  billing: BillingData;
 }) {
   const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [currentBusiness, setCurrentBusiness] = useState(business);
@@ -146,6 +167,16 @@ export default function SettingsClient({
             <WhatsAppSettings
               business={currentBusiness}
               onSaved={setCurrentBusiness}
+            />
+          )}
+          {activeTab === "billing" && (
+            <BillingSettings
+              plan={billing.plan}
+              trialEndsAt={billing.trialEndsAt}
+              subscriptionStatus={billing.subscriptionStatus}
+              currentPeriodEnd={billing.currentPeriodEnd}
+              invoicesThisMonth={billing.invoicesThisMonth}
+              currency={currentBusiness.currency}
             />
           )}
         </div>

@@ -191,7 +191,11 @@ export default function NewInvoicePage() {
 
     const data = await res.json();
     if (!res.ok) {
-      setError(data.error ?? "Something went wrong.");
+      if (data.code === "PLAN_LIMIT") {
+        setError(data.error + " Go to Settings → Billing to upgrade.");
+      } else {
+        setError(data.error ?? "Something went wrong.");
+      }
       setLoading(false);
       return;
     }

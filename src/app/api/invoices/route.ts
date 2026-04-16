@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { buildSequenceSteps, interpolateTemplate } from "@/lib/sequence";
 import { formatCurrency, formatDate } from "@/lib/currency";
+import { canCreateInvoice, type PlanId } from "@/lib/plans";
 import type { Tone, Channel } from "@/generated/prisma/client";
 
 export async function GET() {
@@ -29,6 +30,21 @@ export async function POST(req: Request) {
 
   const business = await db.business.findUnique({ where: { userId: session.user.id } });
   if (!business) return NextResponse.json({ error: "No business found" }, { status: 404 });
+
+  // Plan limit check
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1); startOfMonth.setHours(0, 0, 0, 0);
+  const invoicesThisMonth = await db.invoice.count({
+    where: { businessId: business.id, createdAt: { gte: startOfMonth } },
+  });
+  const planCheck = canCreateInvoice(
+    (business.plan ?? "TRIAL") as PlanId,
+    business.trialEndsAt ?? null,
+    invoicesThisMonth
+  );
+  if (!planCheck.allowed) {
+    return NextResponse.json({ error: planCheck.reason, code: "PLAN_LIMIT" }, { status: 403 });
+  }
 
   const body = await req.json();
   const {

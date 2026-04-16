@@ -14,6 +14,14 @@ export default async function SettingsPage() {
   if (!business) redirect("/onboard");
   if (!user) redirect("/login");
 
+  // Invoices created this calendar month
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+  const invoicesThisMonth = await db.invoice.count({
+    where: { businessId: business.id, createdAt: { gte: startOfMonth } },
+  });
+
   const [globalTemplates, businessTemplates] = await Promise.all([
     db.messageTemplate.findMany({
       where: { businessId: null },
@@ -55,6 +63,13 @@ export default async function SettingsPage() {
         whatsappVerified: business.whatsappVerified,
       }}
       templates={templates}
+      billing={{
+        plan: (business.plan ?? "TRIAL") as import("@/lib/plans").PlanId,
+        trialEndsAt: business.trialEndsAt ?? null,
+        subscriptionStatus: business.subscriptionStatus ?? null,
+        currentPeriodEnd: business.currentPeriodEnd ?? null,
+        invoicesThisMonth,
+      }}
     />
   );
 }
