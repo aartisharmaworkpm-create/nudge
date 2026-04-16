@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import BusinessSettings from "./BusinessSettings";
 import TemplateEditor from "./TemplateEditor";
 import EmailSettings from "./EmailSettings";
@@ -111,7 +112,9 @@ export default function SettingsClient({
   templates: TemplateData[];
   billing: BillingData;
 }) {
-  const [activeTab, setActiveTab] = useState<Tab>("profile");
+  const searchParams = useSearchParams();
+  const initialTab = (searchParams.get("tab") as Tab | null) ?? "profile";
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [currentBusiness, setCurrentBusiness] = useState(business);
 
   return (

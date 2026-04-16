@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
@@ -48,6 +49,7 @@ export default async function SettingsPage() {
   });
 
   return (
+    <Suspense>
     <SettingsClient
       user={{
         name: user.name,
@@ -71,5 +73,6 @@ export default async function SettingsPage() {
         invoicesThisMonth,
       }}
     />
+    </Suspense>
   );
 }
