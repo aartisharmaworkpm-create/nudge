@@ -37,11 +37,19 @@ export default function BillingSettings({
   const [cancelling, setCancelling] = useState(false);
   const searchParams = useSearchParams();
 
-  // Auto-trigger checkout if arriving from pricing page with ?plan=X
   useEffect(() => {
+    // Show success toast if redirected back after payment
+    if (searchParams.get("success") === "1") {
+      showToast("🎉 Subscription activated! Your plan is now live.");
+      // Clean up the URL param without re-rendering
+      const url = new URL(window.location.href);
+      url.searchParams.delete("success");
+      window.history.replaceState(null, "", url.toString());
+    }
+
+    // Auto-trigger checkout if arriving from onboard/pricing with ?plan=X
     const planParam = searchParams.get("plan") as PlanId | null;
     if (planParam && PAID_PLANS.includes(planParam as "STARTER" | "GROWTH" | "PRO") && plan !== planParam) {
-      // Small delay so the page renders first, then open Razorpay
       const timer = setTimeout(() => handleRazorpayPlan(planParam), 500);
       return () => clearTimeout(timer);
     }
@@ -78,8 +86,8 @@ export default function BillingSettings({
           body: JSON.stringify({ ...response, planId }),
         });
         if (verifyRes.ok) {
-          showToast("Subscription activated!");
-          setTimeout(() => window.location.reload(), 1200);
+          // Redirect to billing tab with success flag — keeps tab open and shows toast
+          window.location.href = "/settings?tab=billing&success=1";
         } else {
           showToast("Payment verification failed.", "error");
         }
@@ -97,7 +105,7 @@ export default function BillingSettings({
     setShowCancelModal(false);
     if (res.ok) {
       showToast("Subscription cancelled. You keep access until the end of your billing period.");
-      setTimeout(() => window.location.reload(), 2000);
+      setTimeout(() => { window.location.href = "/settings?tab=billing"; }, 1800);
     } else {
       showToast(data.error ?? "Failed to cancel. Please try again.", "error");
     }
