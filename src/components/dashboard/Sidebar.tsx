@@ -4,6 +4,48 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { logout } from "@/app/actions/auth";
+import { PLANS, isTrialActive } from "@/lib/plans";
+
+function PlanCard({ plan, trialEndsAt }: { plan: string; trialEndsAt: Date | string | null }) {
+  const isTrial    = plan === "TRIAL";
+  const isCanceled = plan === "CANCELED";
+  const planConfig = PLANS[plan as keyof typeof PLANS];
+  const label      = planConfig?.label ?? plan;
+
+  const trialActive   = isTrial ? isTrialActive(trialEndsAt ? new Date(trialEndsAt) : null) : false;
+  const trialDaysLeft = trialEndsAt
+    ? Math.max(0, Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86400000))
+    : 0;
+
+  const bg     = isCanceled ? "bg-gray-100 border-gray-200"
+               : isTrial    ? "bg-amber-50 border-amber-200"
+               :               "bg-teal-50 border-teal-200";
+  const dot    = isCanceled ? "bg-gray-400"
+               : isTrial    ? "bg-amber-400"
+               :               "bg-teal-500";
+  const text   = isCanceled ? "text-gray-500"
+               : isTrial    ? "text-amber-800"
+               :               "text-teal-900";
+  const sub    = isCanceled ? "Subscription ended"
+               : isTrial && trialActive  ? `${trialDaysLeft} day${trialDaysLeft !== 1 ? "s" : ""} left in trial`
+               : isTrial && !trialActive ? "Trial ended"
+               :                           "Active subscription";
+
+  return (
+    <Link
+      href="/settings?tab=billing"
+      className={`block rounded-xl border px-3 py-2.5 transition-colors hover:brightness-95 ${bg}`}
+    >
+      <div className="flex items-center gap-2 mb-0.5">
+        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${dot}`} />
+        <span className={`text-xs font-bold ${text}`}>{label} plan</span>
+      </div>
+      <p className={`text-xs pl-4 ${isCanceled || (isTrial && !trialActive) ? "text-red-500 font-medium" : "text-gray-500"}`}>
+        {sub}
+      </p>
+    </Link>
+  );
+}
 
 const NAV = [
   {
@@ -48,9 +90,13 @@ const NAV = [
 export default function Sidebar({
   businessName,
   userEmail,
+  plan,
+  trialEndsAt,
 }: {
   businessName: string;
   userEmail: string;
+  plan: string;
+  trialEndsAt: Date | string | null;
 }) {
   const pathname = usePathname();
   const [showConfirm, setShowConfirm] = useState(false);
@@ -84,6 +130,11 @@ export default function Sidebar({
             );
           })}
         </nav>
+
+        {/* Plan card */}
+        <div className="px-3 pb-3">
+          <PlanCard plan={plan} trialEndsAt={trialEndsAt} />
+        </div>
 
         {/* User */}
         <div className="px-3 py-4 border-t border-gray-100">
