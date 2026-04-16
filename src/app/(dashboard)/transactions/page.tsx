@@ -123,7 +123,7 @@ export default async function TransactionsPage() {
             Your payment history will appear here once you subscribe to a plan.
           </p>
           <Link
-            href="/pricing"
+            href="/settings?tab=billing"
             className="inline-flex items-center gap-1.5 bg-teal-800 text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-teal-900 transition-colors"
           >
             View plans →
