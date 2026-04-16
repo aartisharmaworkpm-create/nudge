@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/Toast";
 import { PLANS, PAID_PLANS, isTrialActive, type PlanId } from "@/lib/plans";
 
@@ -27,6 +28,18 @@ export default function BillingSettings({
 }: Props) {
   const { showToast, toastNode } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+
+  // Auto-trigger checkout if arriving from pricing page with ?plan=X
+  useEffect(() => {
+    const planParam = searchParams.get("plan") as PlanId | null;
+    if (planParam && PAID_PLANS.includes(planParam as "STARTER" | "GROWTH" | "PRO") && plan !== planParam) {
+      // Small delay so the page renders first, then open Razorpay
+      const timer = setTimeout(() => handleRazorpayPlan(planParam), 500);
+      return () => clearTimeout(timer);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const currentPlan = PLANS[plan] ?? PLANS.TRIAL;
   const trialActive = isTrialActive(trialEndsAt ? new Date(trialEndsAt) : null);

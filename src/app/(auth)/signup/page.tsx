@@ -1,13 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const planParam = searchParams.get("plan"); // e.g. "GROWTH"
   const [step, setStep] = useState<1 | 2>(1);
+
+  useEffect(() => {
+    // Persist plan selection across signup → onboard flow
+    if (planParam) sessionStorage.setItem("nudge_pending_plan", planParam);
+  }, [planParam]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,8 +44,10 @@ export default function SignupPage() {
       return;
     }
 
-    await signIn("credentials", { email, password, callbackUrl: "/dashboard" });
-    router.push("/dashboard");
+    const pendingPlan = sessionStorage.getItem("nudge_pending_plan");
+    const callbackUrl = pendingPlan ? `/onboard?plan=${pendingPlan}` : "/onboard";
+    await signIn("credentials", { email, password, callbackUrl });
+    router.push(callbackUrl);
   }
 
   return (
@@ -181,5 +190,13 @@ export default function SignupPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense>
+      <SignupForm />
+    </Suspense>
   );
 }

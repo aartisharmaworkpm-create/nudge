@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
+import { getResolvedPlans } from "@/lib/razorpay-plans";
+import PricingCards from "@/components/pricing/PricingCards";
+import type { ResolvedPlan } from "@/lib/razorpay-plans";
 
 export default async function LandingPage() {
-  const session = await auth();
+  const [session, plans] = await Promise.all([auth(), getResolvedPlans()]);
   const isLoggedIn = !!session?.user;
 
   return (
@@ -15,6 +18,7 @@ export default async function LandingPage() {
       <Stats />
       <Features />
       <FounderQuote />
+      <Pricing plans={plans} isLoggedIn={isLoggedIn} />
       <TeaserStrip />
       <FinalCTA />
       <Footer />
@@ -29,7 +33,10 @@ function Nav({ isLoggedIn }: { isLoggedIn: boolean }) {
     <header className="sticky top-0 z-50 bg-cream/95 backdrop-blur-sm border-b border-cream-dark">
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <span className="text-xl font-black text-gray-900 tracking-tight">Nudge.</span>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
+          <Link href="/pricing" className="text-sm text-gray-500 hover:text-gray-900 transition-colors hidden sm:block">
+            Pricing
+          </Link>
           {isLoggedIn ? (
             <Link
               href="/dashboard"
@@ -39,17 +46,11 @@ function Nav({ isLoggedIn }: { isLoggedIn: boolean }) {
             </Link>
           ) : (
             <>
-              <Link
-                href="/login"
-                className="text-sm text-gray-500 hover:text-gray-900 px-3 py-1.5 transition-colors"
-              >
+              <Link href="/login" className="text-sm text-gray-500 hover:text-gray-900 px-3 py-1.5 transition-colors">
                 Sign in
               </Link>
-              <Link
-                href="/signup"
-                className="text-sm font-semibold bg-teal-800 text-white px-5 py-2.5 rounded-lg hover:bg-teal-900 transition-colors"
-              >
-                Join the waitlist
+              <Link href="/signup" className="text-sm font-semibold bg-teal-800 text-white px-5 py-2.5 rounded-lg hover:bg-teal-900 transition-colors">
+                Get started
               </Link>
             </>
           )}
@@ -368,6 +369,33 @@ function FounderQuote() {
           <p className="text-gray-400 text-xs">Founder, Nudge</p>
         </div>
       </div>
+    </section>
+  );
+}
+
+// ── Pricing ───────────────────────────────────────────────────────────────────
+
+function Pricing({ plans, isLoggedIn }: { plans: ResolvedPlan[]; isLoggedIn: boolean }) {
+  return (
+    <section id="pricing" className="py-24 bg-white border-y border-cream-dark">
+      <div className="text-center mb-4 px-6">
+        <p className="text-xs font-bold tracking-widest uppercase text-teal-700 mb-4">Pricing</p>
+        <h2 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4">
+          Simple, honest pricing.
+        </h2>
+        <p className="text-lg text-gray-500 max-w-xl mx-auto">
+          Start free for 14 days — no card needed. Then pick the plan that fits.
+        </p>
+      </div>
+      <div className="flex justify-center mb-10">
+        <div className="inline-flex items-center gap-2 bg-teal-50 border border-teal-200 text-teal-800 text-sm font-medium px-4 py-2 rounded-full">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          14-day free trial · up to 5 invoices · no card required
+        </div>
+      </div>
+      <PricingCards plans={plans} isLoggedIn={isLoggedIn} />
     </section>
   );
 }

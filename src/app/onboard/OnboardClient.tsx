@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const CURRENCIES = [
   { code: "GBP", label: "£ GBP — British Pound" },
@@ -15,6 +15,7 @@ const CURRENCIES = [
 
 export default function OnboardClient({ userName }: { userName: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const firstName = userName.split(" ")[0] || "there";
 
   const [businessName, setBusinessName] = useState("");
@@ -43,7 +44,13 @@ export default function OnboardClient({ userName }: { userName: string }) {
       return;
     }
 
-    router.push("/dashboard?welcome=1");
+    const pendingPlan = sessionStorage.getItem("nudge_pending_plan");
+    if (pendingPlan) {
+      sessionStorage.removeItem("nudge_pending_plan");
+      router.push(`/settings?tab=billing&plan=${pendingPlan}`);
+    } else {
+      router.push("/dashboard?welcome=1");
+    }
   }
 
   return (
