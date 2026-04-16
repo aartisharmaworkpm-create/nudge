@@ -28,6 +28,8 @@ export default function BillingSettings({
 }: Props) {
   const { showToast, toastNode } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
   const searchParams = useSearchParams();
 
   // Auto-trigger checkout if arriving from pricing page with ?plan=X
@@ -82,6 +84,20 @@ export default function BillingSettings({
     setLoading(null);
   }
 
+  async function handleCancel() {
+    setCancelling(true);
+    const res = await fetch("/api/billing/razorpay/cancel", { method: "POST" });
+    const data = await res.json();
+    setCancelling(false);
+    setShowCancelModal(false);
+    if (res.ok) {
+      showToast("Subscription cancelled. You keep access until the end of your billing period.");
+      setTimeout(() => window.location.reload(), 2000);
+    } else {
+      showToast(data.error ?? "Failed to cancel. Please try again.", "error");
+    }
+  }
+
   return (
     <div className="space-y-4">
       {toastNode}
@@ -123,6 +139,14 @@ export default function BillingSettings({
             )}
             {plan === "TRIAL" && !trialActive && (
               <p className="text-sm text-red-600 mt-1">Your trial has ended — choose a plan below to continue.</p>
+            )}
+            {subscriptionStatus === "active" && plan !== "TRIAL" && plan !== "CANCELED" && (
+              <button
+                onClick={() => setShowCancelModal(true)}
+                className="mt-3 text-xs text-red-500 hover:text-red-700 hover:underline transition-colors"
+              >
+                Cancel subscription
+              </button>
             )}
           </div>
 
@@ -198,6 +222,39 @@ export default function BillingSettings({
       </div>
 
       <p className="text-xs text-gray-400 text-center">Payments processed securely by Razorpay. Cancel anytime.</p>
+
+      {/* Cancel confirmation modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+            <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center mb-4">
+              <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-base font-bold text-gray-900 mb-1">Cancel subscription?</h3>
+            <p className="text-sm text-gray-500 mb-5 leading-relaxed">
+              Your plan stays active until the end of your current billing period. After that, you&apos;ll lose access to paid features.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowCancelModal(false)}
+                disabled={cancelling}
+                className="flex-1 border border-gray-200 rounded-xl py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+              >
+                Keep plan
+              </button>
+              <button
+                onClick={handleCancel}
+                disabled={cancelling}
+                className="flex-1 bg-red-600 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors"
+              >
+                {cancelling ? "Cancelling…" : "Yes, cancel"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
