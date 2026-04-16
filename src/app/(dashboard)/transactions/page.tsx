@@ -4,81 +4,27 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { PLANS } from "@/lib/plans";
 
-// ── Razorpay payment shape ─────────────────────────────────────────────────────
-type RzpPayment = {
-  id: string;
-  amount: number;        // paise
-  currency: string;
-  status: string;        // "captured" | "failed" | "refunded" | ...
-  method: string;        // "card" | "upi" | "netbanking" | "wallet" | ...
-  created_at: number;    // unix timestamp
-  error_description: string | null;
-};
-
-// ── Fetch all payments for a Razorpay subscription ────────────────────────────
-async function fetchSubscriptionPayments(
-  subscriptionId: string
-): Promise<{ payments: RzpPayment[]; error: string | null }> {
-  const keyId     = process.env.RAZORPAY_KEY_ID;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
-  if (!keyId || !keySecret) return { payments: [], error: "Razorpay credentials not configured." };
-
-  try {
-    const basicAuth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
-
-    // Correct endpoint: GET /v1/subscriptions/{id}/payments
-    const res = await fetch(
-      `https://api.razorpay.com/v1/subscriptions/${subscriptionId}/payments`,
-      {
-        headers: { Authorization: `Basic ${basicAuth}` },
-        next: { revalidate: 300 },
-      }
-    );
-
-    const json = await res.json();
-    if (!res.ok) {
-      return { payments: [], error: json?.error?.description ?? `Razorpay error (${res.status})` };
-    }
-
-    return { payments: (json.items ?? []) as RzpPayment[], error: null };
-  } catch (err) {
-    return { payments: [], error: String(err) };
-  }
-}
-
-// ── Derive a human plan label from the INR amount ─────────────────────────────
-function planLabelFromAmount(amountINR: number): string {
-  for (const plan of Object.values(PLANS)) {
-    if (plan.priceINR > 0 && plan.priceINR === amountINR) return `${plan.label} plan`;
-  }
-  return "Nudge subscription";
-}
-
-// ── Status badge config ────────────────────────────────────────────────────────
-function statusBadge(status: string) {
+// ── Status badge ──────────────────────────────────────────────────────────────
+function StatusBadge({ status }: { status: string }) {
   switch (status) {
     case "captured":
-      return <span className="inline-flex items-center gap-1 text-xs font-semibold bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">Paid</span>;
+      return <span className="inline-flex items-center text-xs font-semibold bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">Paid</span>;
     case "failed":
-      return <span className="inline-flex items-center gap-1 text-xs font-semibold bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded-full">Failed</span>;
+      return <span className="inline-flex items-center text-xs font-semibold bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded-full">Failed</span>;
     case "refunded":
-      return <span className="inline-flex items-center gap-1 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">Refunded</span>;
+      return <span className="inline-flex items-center text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">Refunded</span>;
     default:
-      return <span className="inline-flex items-center gap-1 text-xs font-semibold bg-gray-100 text-gray-500 border border-gray-200 px-2 py-0.5 rounded-full capitalize">{status}</span>;
+      return <span className="inline-flex items-center text-xs font-semibold bg-gray-100 text-gray-500 border border-gray-200 px-2 py-0.5 rounded-full capitalize">{status}</span>;
   }
 }
 
 // ── Method label ──────────────────────────────────────────────────────────────
-function methodLabel(method: string): string {
+function methodLabel(method: string | null): string {
   const MAP: Record<string, string> = {
-    card:        "Card",
-    upi:         "UPI",
-    netbanking:  "Net Banking",
-    wallet:      "Wallet",
-    emi:         "EMI",
-    bank_transfer: "Bank Transfer",
+    card: "Card", upi: "UPI", netbanking: "Net Banking",
+    wallet: "Wallet", emi: "EMI", bank_transfer: "Bank Transfer",
   };
-  return MAP[method] ?? method;
+  return method ? (MAP[method] ?? method) : "—";
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -89,12 +35,14 @@ export default async function TransactionsPage() {
   const business = await db.business.findUnique({ where: { userId: session.user.id } });
   if (!business) redirect("/onboard");
 
-  const { payments, error: fetchError } = business.razorpaySubscriptionId
-    ? await fetchSubscriptionPayments(business.razorpaySubscriptionId)
-    : { payments: [], error: null };
+  const transactions = await db.transaction.findMany({
+    where:   { businessId: business.id },
+    orderBy: { createdAt: "desc" },
+  });
 
-  // Sort newest first
-  const sorted = [...payments].sort((a, b) => b.created_at - a.created_at);
+  const totalPaid = transactions
+    .filter((t) => t.status === "captured")
+    .reduce((sum, t) => sum + t.amount, 0);
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
@@ -104,13 +52,7 @@ export default async function TransactionsPage() {
         <p className="text-gray-500 text-sm mt-0.5">Your billing history on Nudge</p>
       </div>
 
-      {fetchError && (
-        <div className="mb-6 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
-          Could not load transactions: {fetchError}
-        </div>
-      )}
-
-      {sorted.length === 0 ? (
+      {transactions.length === 0 ? (
         /* ── Empty state ── */
         <div className="bg-white border border-gray-200 rounded-2xl p-14 text-center">
           <div className="w-12 h-12 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -135,15 +77,12 @@ export default async function TransactionsPage() {
           {/* Summary bar */}
           <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
             <p className="text-sm text-gray-500">
-              {sorted.length} transaction{sorted.length !== 1 ? "s" : ""}
+              {transactions.length} transaction{transactions.length !== 1 ? "s" : ""}
             </p>
             <p className="text-sm font-semibold text-gray-700">
               Total paid:{" "}
               <span className="text-teal-800">
-                ₹{sorted
-                  .filter((p) => p.status === "captured")
-                  .reduce((sum, p) => sum + p.amount / 100, 0)
-                  .toLocaleString("en-IN")}
+                ₹{(totalPaid / 100).toLocaleString("en-IN")}
               </span>
             </p>
           </div>
@@ -152,38 +91,38 @@ export default async function TransactionsPage() {
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wide">
                 <th className="text-left px-6 py-3">Date</th>
-                <th className="text-left px-6 py-3">Description</th>
+                <th className="text-left px-6 py-3">Plan</th>
                 <th className="text-left px-6 py-3 hidden sm:table-cell">Method</th>
                 <th className="text-right px-6 py-3">Amount</th>
                 <th className="text-right px-6 py-3">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {sorted.map((payment) => {
-                const amountINR = payment.amount / 100;
-                const date = new Date(payment.created_at * 1000);
+              {transactions.map((tx) => {
+                const planLabel = PLANS[tx.planId as keyof typeof PLANS]?.label ?? tx.planId;
+                const amountINR = tx.amount / 100;
                 return (
-                  <tr key={payment.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={tx.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 text-gray-700 whitespace-nowrap">
                       <p className="font-medium">
-                        {date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                        {tx.createdAt.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                       </p>
                       <p className="text-xs text-gray-400 mt-0.5">
-                        {date.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                        {tx.createdAt.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-medium text-gray-800">{planLabelFromAmount(amountINR)}</p>
-                      <p className="text-xs text-gray-400 mt-0.5 font-mono">{payment.id}</p>
+                      <p className="font-medium text-gray-800">{planLabel} plan</p>
+                      <p className="text-xs text-gray-400 mt-0.5 font-mono">{tx.razorpayPaymentId}</p>
                     </td>
                     <td className="px-6 py-4 text-gray-600 hidden sm:table-cell">
-                      {methodLabel(payment.method)}
+                      {methodLabel(tx.method)}
                     </td>
                     <td className="px-6 py-4 text-right font-semibold text-gray-900 whitespace-nowrap">
                       ₹{amountINR.toLocaleString("en-IN")}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      {statusBadge(payment.status)}
+                      <StatusBadge status={tx.status} />
                     </td>
                   </tr>
                 );
