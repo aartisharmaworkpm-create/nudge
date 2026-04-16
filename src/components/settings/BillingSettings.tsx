@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/Toast";
 import { PLANS, PAID_PLANS, isTrialActive, type PlanId } from "@/lib/plans";
+import type { ResolvedPlan } from "@/lib/razorpay-plans";
 
 type Props = {
   plan: PlanId;
@@ -11,6 +12,7 @@ type Props = {
   subscriptionStatus: string | null;
   currentPeriodEnd: Date | string | null;
   invoicesThisMonth: number;
+  resolvedPlans: ResolvedPlan[];
 };
 
 const PLAN_HIGHLIGHTS: Record<string, string[]> = {
@@ -25,7 +27,10 @@ export default function BillingSettings({
   subscriptionStatus,
   currentPeriodEnd,
   invoicesThisMonth,
+  resolvedPlans,
 }: Props) {
+  // Build a lookup map so we can get live prices by plan ID
+  const resolvedMap = Object.fromEntries(resolvedPlans.map((p) => [p.id, p]));
   const { showToast, toastNode } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -179,6 +184,7 @@ export default function BillingSettings({
       <div className="grid grid-cols-1 gap-3">
         {(["STARTER", "GROWTH", "PRO"] as const).map((planId) => {
           const p = PLANS[planId];
+          const livePrice = resolvedMap[planId]?.priceINR ?? p.priceINR;
           const isCurrent = plan === planId;
 
           return (
@@ -212,7 +218,7 @@ export default function BillingSettings({
                   </ul>
                 </div>
                 <div className="flex-shrink-0 text-right">
-                  <p className="text-lg font-bold text-gray-900">₹{p.priceINR.toLocaleString("en-IN")}<span className="text-xs font-normal text-gray-400">/mo</span></p>
+                  <p className="text-lg font-bold text-gray-900">₹{livePrice.toLocaleString("en-IN")}<span className="text-xs font-normal text-gray-400">/mo</span></p>
                   {!isCurrent && (
                     <button
                       onClick={() => handleRazorpayPlan(planId)}

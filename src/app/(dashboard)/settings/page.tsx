@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import SettingsClient from "@/components/settings/SettingsClient";
+import { getResolvedPlans } from "@/lib/razorpay-plans";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -23,7 +24,8 @@ export default async function SettingsPage() {
     where: { businessId: business.id, createdAt: { gte: startOfMonth } },
   });
 
-  const [globalTemplates, businessTemplates] = await Promise.all([
+  const [resolvedPlans, globalTemplates, businessTemplates] = await Promise.all([
+    getResolvedPlans(),
     db.messageTemplate.findMany({
       where: { businessId: null },
       orderBy: [{ step: "asc" }, { tone: "asc" }],
@@ -71,6 +73,7 @@ export default async function SettingsPage() {
         subscriptionStatus: business.subscriptionStatus ?? null,
         currentPeriodEnd: business.currentPeriodEnd ?? null,
         invoicesThisMonth,
+        resolvedPlans,
       }}
     />
     </Suspense>

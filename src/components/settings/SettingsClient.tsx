@@ -9,6 +9,7 @@ import WhatsAppSettings from "./WhatsAppSettings";
 import ProfileSettings from "./ProfileSettings";
 import BillingSettings from "./BillingSettings";
 import type { PlanId } from "@/lib/plans";
+import type { ResolvedPlan } from "@/lib/razorpay-plans";
 
 type Tab = "profile" | "business" | "templates" | "email" | "whatsapp" | "billing";
 
@@ -81,6 +82,7 @@ export type BillingData = {
   subscriptionStatus: string | null;
   currentPeriodEnd: Date | string | null;
   invoicesThisMonth: number;
+  resolvedPlans: ResolvedPlan[];
 };
 
 export type BusinessData = {
@@ -179,6 +181,7 @@ export default function SettingsClient({
               subscriptionStatus={billing.subscriptionStatus}
               currentPeriodEnd={billing.currentPeriodEnd}
               invoicesThisMonth={billing.invoicesThisMonth}
+              resolvedPlans={billing.resolvedPlans}
             />
           )}
         </div>
