@@ -31,3 +31,7 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), sans-serif;
 }
+
+button, [role="button"], a {
+  cursor: pointer;
+}
