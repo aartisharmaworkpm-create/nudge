@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/Toast";
 import { PLANS, PAID_PLANS, isTrialActive, type PlanId } from "@/lib/plans";
 import type { ResolvedPlan } from "@/lib/razorpay-plans";
+import { convertFromINR, type ExchangeRates } from "@/lib/exchange-rates";
 
 type Props = {
   plan: PlanId;
@@ -13,6 +14,8 @@ type Props = {
   currentPeriodEnd: Date | string | null;
   invoicesThisMonth: number;
   resolvedPlans: ResolvedPlan[];
+  userCurrency: string;
+  rates: ExchangeRates;
 };
 
 const PLAN_HIGHLIGHTS: Record<string, string[]> = {
@@ -28,6 +31,8 @@ export default function BillingSettings({
   currentPeriodEnd,
   invoicesThisMonth,
   resolvedPlans,
+  userCurrency,
+  rates,
 }: Props) {
   // Build a lookup map so we can get live prices by plan ID
   const resolvedMap = Object.fromEntries(resolvedPlans.map((p) => [p.id, p]));
@@ -193,6 +198,7 @@ export default function BillingSettings({
         {(["STARTER", "GROWTH", "PRO"] as const).map((planId) => {
           const p = PLANS[planId];
           const livePrice = resolvedMap[planId]?.priceINR ?? p.priceINR;
+          const localPrice = convertFromINR(livePrice, userCurrency, rates);
           const isCurrent = plan === planId;
 
           return (
@@ -227,6 +233,9 @@ export default function BillingSettings({
                 </div>
                 <div className="flex-shrink-0 text-right">
                   <p className="text-lg font-bold text-gray-900">₹{livePrice.toLocaleString("en-IN")}<span className="text-xs font-normal text-gray-400">/mo</span></p>
+                  {localPrice && (
+                    <p className="text-xs text-gray-400">≈ {localPrice}/mo</p>
+                  )}
                   {!isCurrent && (
                     <button
                       onClick={() => handleRazorpayPlan(planId)}

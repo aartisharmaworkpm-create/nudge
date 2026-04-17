@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import SettingsClient from "@/components/settings/SettingsClient";
 import { getResolvedPlans } from "@/lib/razorpay-plans";
+import { getINRRates } from "@/lib/exchange-rates";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -24,8 +25,9 @@ export default async function SettingsPage() {
     where: { businessId: business.id, createdAt: { gte: startOfMonth } },
   });
 
-  const [resolvedPlans, globalTemplates, businessTemplates] = await Promise.all([
+  const [resolvedPlans, rates, globalTemplates, businessTemplates] = await Promise.all([
     getResolvedPlans(),
+    getINRRates(),
     db.messageTemplate.findMany({
       where: { businessId: null },
       orderBy: [{ step: "asc" }, { tone: "asc" }],
@@ -74,6 +76,8 @@ export default async function SettingsPage() {
         currentPeriodEnd: business.currentPeriodEnd ?? null,
         invoicesThisMonth,
         resolvedPlans,
+        userCurrency: business.currency,
+        rates,
       }}
     />
     </Suspense>

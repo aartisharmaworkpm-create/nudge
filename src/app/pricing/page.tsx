@@ -1,5 +1,7 @@
 import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
 import { getResolvedPlans } from "@/lib/razorpay-plans";
+import { getINRRates } from "@/lib/exchange-rates";
 import PricingCards from "@/components/pricing/PricingCards";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
@@ -7,8 +9,18 @@ import Link from "next/link";
 export const revalidate = 3600; // refresh pricing every hour
 
 export default async function PricingPage() {
-  const [session, plans] = await Promise.all([auth(), getResolvedPlans()]);
+  const [session, plans, rates] = await Promise.all([auth(), getResolvedPlans(), getINRRates()]);
   const isLoggedIn = !!session?.user;
+
+  // For logged-in users, use their chosen business currency
+  let userCurrency = "INR";
+  if (session?.user?.id) {
+    const business = await db.business.findUnique({
+      where: { userId: session.user.id },
+      select: { currency: true },
+    });
+    userCurrency = business?.currency ?? "INR";
+  }
 
   return (
     <div className="min-h-screen bg-cream">
@@ -55,7 +67,7 @@ export default async function PricingPage() {
       </div>
 
       {/* Plan cards */}
-      <PricingCards plans={plans} isLoggedIn={isLoggedIn} />
+      <PricingCards plans={plans} isLoggedIn={isLoggedIn} userCurrency={userCurrency} rates={rates} />
 
       {/* FAQ */}
       <section className="max-w-2xl mx-auto px-6 py-20">

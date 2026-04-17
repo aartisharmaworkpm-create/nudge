@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/Toast";
 import type { ResolvedPlan } from "@/lib/razorpay-plans";
+import { convertFromINR, type ExchangeRates } from "@/lib/exchange-rates";
 
 const PLAN_HIGHLIGHTS: Record<string, { features: string[]; notIncluded?: string[] }> = {
   STARTER: {
@@ -41,9 +42,13 @@ const PLAN_HIGHLIGHTS: Record<string, { features: string[]; notIncluded?: string
 export default function PricingCards({
   plans,
   isLoggedIn,
+  userCurrency = "INR",
+  rates = {},
 }: {
   plans: ResolvedPlan[];
   isLoggedIn: boolean;
+  userCurrency?: string;
+  rates?: ExchangeRates;
 }) {
   const router = useRouter();
   const { showToast, toastNode } = useToast();
@@ -116,6 +121,7 @@ export default function PricingCards({
           const highlights = PLAN_HIGHLIGHTS[plan.id];
           const isPopular = plan.id === "GROWTH";
           const isLoading = loading === plan.id;
+          const localPrice = convertFromINR(plan.priceINR, userCurrency, rates);
 
           return (
             <div
@@ -142,6 +148,9 @@ export default function PricingCards({
                   </span>
                   <span className="text-gray-400 text-sm mb-1">/mo</span>
                 </div>
+                {localPrice && (
+                  <p className="text-xs text-gray-400 mb-1">≈ {localPrice}/mo</p>
+                )}
                 <p className="text-xs text-gray-400">
                   Overage: ₹{plan.overage}/invoice above limit
                 </p>

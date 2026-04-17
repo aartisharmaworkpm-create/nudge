@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { PLANS } from "@/lib/plans";
+import { getINRRates, convertFromINR } from "@/lib/exchange-rates";
 
 // ── Status badge ──────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: string }) {
@@ -35,10 +36,11 @@ export default async function TransactionsPage() {
   const business = await db.business.findUnique({ where: { userId: session.user.id } });
   if (!business) redirect("/onboard");
 
-  const transactions = await db.transaction.findMany({
-    where:   { businessId: business.id },
-    orderBy: { createdAt: "desc" },
-  });
+  const [transactions, rates] = await Promise.all([
+    db.transaction.findMany({ where: { businessId: business.id }, orderBy: { createdAt: "desc" } }),
+    getINRRates(),
+  ]);
+  const userCurrency = business.currency;
 
   const totalPaid = transactions
     .filter((t) => t.status === "captured")
@@ -118,8 +120,11 @@ export default async function TransactionsPage() {
                     <td className="px-6 py-4 text-gray-600 hidden sm:table-cell">
                       {methodLabel(tx.method)}
                     </td>
-                    <td className="px-6 py-4 text-right font-semibold text-gray-900 whitespace-nowrap">
-                      ₹{amountINR.toLocaleString("en-IN")}
+                    <td className="px-6 py-4 text-right whitespace-nowrap">
+                      <p className="font-semibold text-gray-900">₹{amountINR.toLocaleString("en-IN")}</p>
+                      {convertFromINR(amountINR, userCurrency, rates) && (
+                        <p className="text-xs text-gray-400">≈ {convertFromINR(amountINR, userCurrency, rates)}</p>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <StatusBadge status={tx.status} />

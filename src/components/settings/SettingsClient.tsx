@@ -10,6 +10,7 @@ import ProfileSettings from "./ProfileSettings";
 import BillingSettings from "./BillingSettings";
 import type { PlanId } from "@/lib/plans";
 import type { ResolvedPlan } from "@/lib/razorpay-plans";
+import type { ExchangeRates } from "@/lib/exchange-rates";
 
 type Tab = "profile" | "business" | "templates" | "email" | "whatsapp" | "billing";
 
@@ -83,6 +84,8 @@ export type BillingData = {
   currentPeriodEnd: Date | string | null;
   invoicesThisMonth: number;
   resolvedPlans: ResolvedPlan[];
+  userCurrency: string;
+  rates: ExchangeRates;
 };
 
 export type BusinessData = {
@@ -182,6 +185,8 @@ export default function SettingsClient({
               currentPeriodEnd={billing.currentPeriodEnd}
               invoicesThisMonth={billing.invoicesThisMonth}
               resolvedPlans={billing.resolvedPlans}
+              userCurrency={billing.userCurrency}
+              rates={billing.rates}
             />
           )}
         </div>

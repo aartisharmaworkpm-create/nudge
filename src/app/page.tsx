@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getResolvedPlans } from "@/lib/razorpay-plans";
+import { getINRRates } from "@/lib/exchange-rates";
 import PricingCards from "@/components/pricing/PricingCards";
 import Footer from "@/components/layout/Footer";
 import type { ResolvedPlan } from "@/lib/razorpay-plans";
 
 export default async function LandingPage() {
-  const [session, plans] = await Promise.all([auth(), getResolvedPlans()]);
+  const [session, plans, rates] = await Promise.all([auth(), getResolvedPlans(), getINRRates()]);
   const isLoggedIn = !!session?.user;
 
   return (
@@ -19,7 +20,7 @@ export default async function LandingPage() {
       <Stats />
       <Features />
       <FounderQuote />
-      <Pricing plans={plans} isLoggedIn={isLoggedIn} />
+      <Pricing plans={plans} isLoggedIn={isLoggedIn} rates={rates} />
       <TeaserStrip />
       <FinalCTA />
       <Footer />
@@ -376,7 +377,7 @@ function FounderQuote() {
 
 // ── Pricing ───────────────────────────────────────────────────────────────────
 
-function Pricing({ plans, isLoggedIn }: { plans: ResolvedPlan[]; isLoggedIn: boolean }) {
+function Pricing({ plans, isLoggedIn, rates }: { plans: ResolvedPlan[]; isLoggedIn: boolean; rates: import("@/lib/exchange-rates").ExchangeRates }) {
   return (
     <section id="pricing" className="py-24 bg-white border-y border-cream-dark">
       <div className="text-center mb-4 px-6">
@@ -396,7 +397,7 @@ function Pricing({ plans, isLoggedIn }: { plans: ResolvedPlan[]; isLoggedIn: boo
           14-day free trial · up to 5 invoices · no card required
         </div>
       </div>
-      <PricingCards plans={plans} isLoggedIn={isLoggedIn} />
+      <PricingCards plans={plans} isLoggedIn={isLoggedIn} rates={rates} />
     </section>
   );
 }
