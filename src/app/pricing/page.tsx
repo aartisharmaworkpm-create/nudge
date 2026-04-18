@@ -1,33 +1,45 @@
+import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getResolvedPlans } from "@/lib/razorpay-plans";
-import { getINRRates } from "@/lib/exchange-rates";
+import { getINRRates, currencyFromCountry } from "@/lib/exchange-rates";
 import PricingCards from "@/components/pricing/PricingCards";
 import PublicHeader from "@/components/layout/PublicHeader";
 import Footer from "@/components/layout/Footer";
-import Link from "next/link";
 
-export const revalidate = 3600; // refresh pricing every hour
+export const revalidate = 3600;
 
 export default async function PricingPage() {
-  const [session, plans, rates] = await Promise.all([auth(), getResolvedPlans(), getINRRates()]);
+  const [session, plans, rates, headersList] = await Promise.all([
+    auth(),
+    getResolvedPlans(),
+    getINRRates(),
+    headers(),
+  ]);
+
   const isLoggedIn = !!session?.user;
 
-  // For logged-in users, use their chosen business currency
   let userCurrency = "INR";
-  if (session?.user?.id) {
+
+  if (isLoggedIn && session?.user?.id) {
+    // Logged-in: use their saved business currency
     const business = await db.business.findUnique({
       where: { userId: session.user.id },
       select: { currency: true },
     });
     userCurrency = business?.currency ?? "INR";
+  } else {
+    // Guest: detect from Netlify geo header
+    const country = headersList.get("x-nf-country") ?? headersList.get("x-country") ?? "";
+    if (country) {
+      userCurrency = currencyFromCountry(country);
+    }
   }
 
   return (
     <div className="min-h-screen bg-cream">
       <PublicHeader activePage="pricing" isLoggedIn={isLoggedIn} />
 
-      {/* Header */}
       <section className="max-w-3xl mx-auto px-6 pt-20 pb-12 text-center">
         <p className="text-xs font-bold tracking-widest uppercase text-teal-700 mb-4">Pricing</p>
         <h1 className="text-5xl sm:text-6xl font-black text-gray-900 leading-tight mb-4">
@@ -38,7 +50,6 @@ export default async function PricingPage() {
         </p>
       </section>
 
-      {/* Trial badge */}
       <div className="flex justify-center mb-10">
         <div className="inline-flex items-center gap-2 bg-teal-50 border border-teal-200 text-teal-800 text-sm font-medium px-4 py-2 rounded-full">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,10 +59,8 @@ export default async function PricingPage() {
         </div>
       </div>
 
-      {/* Plan cards */}
       <PricingCards plans={plans} isLoggedIn={isLoggedIn} userCurrency={userCurrency} rates={rates} />
 
-      {/* FAQ */}
       <section className="max-w-2xl mx-auto px-6 py-20">
         <h2 className="text-2xl font-black text-gray-900 text-center mb-8">Common questions</h2>
         <div className="space-y-4">
@@ -69,8 +78,8 @@ export default async function PricingPage() {
               a: "All new accounts get a 14-day free trial with up to 5 invoices — no credit card required.",
             },
             {
-              q: "How does Razorpay billing work?",
-              a: "We use Razorpay for secure recurring billing. You can pay via UPI, cards, or net banking. Cancel anytime from your account settings.",
+              q: "How does billing work?",
+              a: "Indian users are billed in ₹ via Razorpay (UPI, cards, net banking). International users are billed in $ via PayPal. Cancel anytime from your account settings.",
             },
           ].map(({ q, a }) => (
             <div key={q} className="bg-white border border-gray-200 rounded-2xl px-6 py-4">

@@ -1,15 +1,20 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { getResolvedPlans } from "@/lib/razorpay-plans";
-import { getINRRates } from "@/lib/exchange-rates";
+import { getINRRates, currencyFromCountry } from "@/lib/exchange-rates";
 import PricingCards from "@/components/pricing/PricingCards";
 import PublicHeader from "@/components/layout/PublicHeader";
 import Footer from "@/components/layout/Footer";
 import type { ResolvedPlan } from "@/lib/razorpay-plans";
 
 export default async function LandingPage() {
-  const [session, plans, rates] = await Promise.all([auth(), getResolvedPlans(), getINRRates()]);
+  const [session, plans, rates, headersList] = await Promise.all([
+    auth(), getResolvedPlans(), getINRRates(), headers(),
+  ]);
   const isLoggedIn = !!session?.user;
+  const country = headersList.get("x-nf-country") ?? headersList.get("x-country") ?? "";
+  const guestCurrency = country ? currencyFromCountry(country) : "INR";
 
   return (
     <div className="min-h-screen bg-cream text-gray-900 font-sans">
@@ -21,7 +26,7 @@ export default async function LandingPage() {
       <Stats />
       <Features />
       <FounderQuote />
-      <Pricing plans={plans} isLoggedIn={isLoggedIn} rates={rates} />
+      <Pricing plans={plans} isLoggedIn={isLoggedIn} rates={rates} guestCurrency={guestCurrency} />
       <TeaserStrip />
       <FinalCTA />
       <Footer />
@@ -344,7 +349,7 @@ function FounderQuote() {
 
 // ── Pricing ───────────────────────────────────────────────────────────────────
 
-function Pricing({ plans, isLoggedIn, rates }: { plans: ResolvedPlan[]; isLoggedIn: boolean; rates: import("@/lib/exchange-rates").ExchangeRates }) {
+function Pricing({ plans, isLoggedIn, rates, guestCurrency }: { plans: ResolvedPlan[]; isLoggedIn: boolean; rates: import("@/lib/exchange-rates").ExchangeRates; guestCurrency: string }) {
   return (
     <section id="pricing" className="py-24 bg-white border-y border-cream-dark">
       <div className="text-center mb-4 px-6">
@@ -364,7 +369,7 @@ function Pricing({ plans, isLoggedIn, rates }: { plans: ResolvedPlan[]; isLogged
           14-day free trial · up to 5 invoices · no card required
         </div>
       </div>
-      <PricingCards plans={plans} isLoggedIn={isLoggedIn} rates={rates} />
+      <PricingCards plans={plans} isLoggedIn={isLoggedIn} rates={rates} userCurrency={guestCurrency} />
     </section>
   );
 }
