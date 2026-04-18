@@ -106,7 +106,7 @@ export default function Sidebar({
       <aside className="w-60 bg-white border-r border-gray-200 flex flex-col">
         {/* Logo */}
         <div className="px-5 py-5 border-b border-gray-100">
-          <span className="text-xl font-black text-gray-900 tracking-tight">Nudge.</span>
+          <Link href="/" className="text-xl font-black text-gray-900 tracking-tight hover:opacity-75 transition-opacity">Nudge.</Link>
           <p className="text-xs text-gray-400 mt-0.5 truncate">{businessName}</p>
         </div>
 

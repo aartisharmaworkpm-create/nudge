@@ -4,6 +4,8 @@ import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import PublicHeader from "@/components/layout/PublicHeader";
+import Footer from "@/components/layout/Footer";
 
 function SignupForm() {
   const router = useRouter();
@@ -51,8 +53,7 @@ function SignupForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cream">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+    <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
         <div className="mb-2">
           <div className="flex items-center gap-2 mb-4">
             <div className={`h-1.5 flex-1 rounded-full ${step >= 1 ? "bg-teal-800" : "bg-gray-200"}`} />
@@ -189,14 +190,19 @@ function SignupForm() {
           </Link>
         </p>
       </div>
-    </div>
   );
 }
 
 export default function SignupPage() {
   return (
-    <Suspense>
-      <SignupForm />
-    </Suspense>
+    <div className="min-h-screen flex flex-col bg-cream">
+      <PublicHeader activePage="signup" />
+      <main className="flex-1 flex items-center justify-center px-4 py-12">
+        <Suspense>
+          <SignupForm />
+        </Suspense>
+      </main>
+      <Footer />
+    </div>
   );
 }

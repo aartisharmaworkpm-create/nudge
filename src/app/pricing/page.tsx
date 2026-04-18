@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getResolvedPlans } from "@/lib/razorpay-plans";
 import { getINRRates } from "@/lib/exchange-rates";
 import PricingCards from "@/components/pricing/PricingCards";
+import PublicHeader from "@/components/layout/PublicHeader";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 
@@ -24,26 +25,7 @@ export default async function PricingPage() {
 
   return (
     <div className="min-h-screen bg-cream">
-      {/* Nav */}
-      <header className="sticky top-0 z-50 bg-cream/95 backdrop-blur-sm border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-xl font-black text-gray-900 tracking-tight">Nudge.</Link>
-          <div className="flex items-center gap-3">
-            {isLoggedIn ? (
-              <Link href="/dashboard" className="text-sm font-semibold bg-teal-800 text-white px-5 py-2.5 rounded-lg hover:bg-teal-900 transition-colors">
-                Dashboard →
-              </Link>
-            ) : (
-              <>
-                <Link href="/login" className="text-sm text-gray-500 hover:text-gray-900 px-3 py-1.5 transition-colors">Sign in</Link>
-                <Link href="/signup" className="text-sm font-semibold bg-teal-800 text-white px-5 py-2.5 rounded-lg hover:bg-teal-900 transition-colors">
-                  Get started
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
+      <PublicHeader activePage="pricing" isLoggedIn={isLoggedIn} />
 
       {/* Header */}
       <section className="max-w-3xl mx-auto px-6 pt-20 pb-12 text-center">
