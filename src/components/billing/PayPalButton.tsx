@@ -81,12 +81,21 @@ export default function PayPalButton({
   // Prefer server-passed override so we don't need NEXT_PUBLIC_ env var
   const clientId = clientIdOverride ?? process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? "";
 
-  // Load SDK
+  // Load SDK — with a 12-second timeout so we never show "Loading…" forever
   useEffect(() => {
     if (!clientId || !paypalPlanId) return;
+
+    let cancelled = false;
+    const timeout = setTimeout(() => {
+      if (!cancelled) setSdkError(true);
+    }, 12000);
+
     loadPayPalSdk(clientId)
-      .then(() => setSdkReady(true))
-      .catch(() => setSdkError(true));
+      .then(() => { if (!cancelled) setSdkReady(true); })
+      .catch(() => { if (!cancelled) setSdkError(true); })
+      .finally(() => clearTimeout(timeout));
+
+    return () => { cancelled = true; clearTimeout(timeout); };
   }, [clientId, paypalPlanId]);
 
   // Render PayPal buttons once SDK is ready
@@ -142,7 +151,7 @@ export default function PayPalButton({
     );
   }
 
-  // ── PayPal client ID missing or SDK failed to load ────────────────────────────
+  // ── PayPal client ID missing or SDK timed out / failed to load ───────────────
   if (!clientId || sdkError) {
     return (
       <div className="space-y-1.5">
@@ -153,7 +162,14 @@ export default function PayPalButton({
           <PayPalIcon />
           Subscribe with PayPal — ${priceUSD}/mo
         </button>
-        <p className="text-xs text-gray-400 text-center">PayPal · Secure checkout</p>
+        {sdkError ? (
+          <p className="text-xs text-amber-500 text-center">
+            PayPal couldn&apos;t load — try disabling your ad blocker, or{" "}
+            <a href="mailto:support@nudge.so" className="underline">contact us</a>.
+          </p>
+        ) : (
+          <p className="text-xs text-gray-400 text-center">PayPal · Secure checkout</p>
+        )}
       </div>
     );
   }
