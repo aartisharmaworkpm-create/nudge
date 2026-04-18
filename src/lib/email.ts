@@ -1,9 +1,18 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-let _resend: Resend | null = null;
-function getResend() {
-  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY!);
-  return _resend;
+let _transporter: nodemailer.Transporter | null = null;
+
+function getTransporter() {
+  if (!_transporter) {
+    _transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.GMAIL_USER!,
+        pass: process.env.GMAIL_APP_PASSWORD!, // Google App Password (not your login password)
+      },
+    });
+  }
+  return _transporter;
 }
 
 export type SendEmailParams = {
@@ -11,7 +20,7 @@ export type SendEmailParams = {
   subject: string;
   body: string;
   fromName: string;           // e.g. "Meridian Studio"
-  fromEmail?: string;         // e.g. "hello@meridianstudio.com" — falls back to ENV default
+  fromEmail?: string;         // ignored for Gmail SMTP — Gmail forces your own address as sender
   replyTo?: string;
   messageId: string;          // for tracking
 };
@@ -21,9 +30,11 @@ export type SendEmailResult =
   | { success: false; error: string };
 
 export async function sendEmail(params: SendEmailParams): Promise<SendEmailResult> {
-  const from = params.fromEmail
-    ? `${params.fromName} <${params.fromEmail}>`
-    : `${params.fromName} <${process.env.EMAIL_FROM ?? "reminders@nudge.so"}>`;
+  const gmailUser = process.env.GMAIL_USER ?? "noreply@gmail.com";
+
+  // Gmail forces the authenticated account as the sender address.
+  // We put the business name in the display name so it reads: "Meridian Studio <your@gmail.com>"
+  const from = `${params.fromName} <${gmailUser}>`;
 
   // Convert plain text body to simple HTML
   const html = `
@@ -41,23 +52,19 @@ export async function sendEmail(params: SendEmailParams): Promise<SendEmailResul
   `;
 
   try {
-    const result = await getResend().emails.send({
+    const info = await getTransporter().sendMail({
       from,
       to: params.to,
       subject: params.subject,
       html,
       text: params.body,
-      replyTo: params.replyTo ?? from,
+      replyTo: params.replyTo ?? params.fromEmail ?? gmailUser,
       headers: {
         "X-Nudge-Message-Id": params.messageId,
       },
     });
 
-    if (result.error) {
-      return { success: false, error: result.error.message };
-    }
-
-    return { success: true, externalId: result.data!.id };
+    return { success: true, externalId: info.messageId };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     return { success: false, error: message };
