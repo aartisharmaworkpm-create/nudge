@@ -206,6 +206,7 @@ export default function BillingSettings({
         {(["STARTER", "GROWTH", "PRO"] as const).map((planId) => {
           const p         = PLANS[planId];
           const livePrice = resolvedMap[planId]?.priceINR ?? p.priceINR;
+          const liveUSD   = resolvedMap[planId]?.priceUSD ?? p.priceUSD;
           const isCurrent = plan === planId;
 
           return (
@@ -242,7 +243,7 @@ export default function BillingSettings({
                   {usePayPal ? (
                     <>
                       <p className="text-lg font-bold text-gray-900">
-                        ${p.priceUSD}<span className="text-xs font-normal text-gray-400">/mo</span>
+                        ${liveUSD}<span className="text-xs font-normal text-gray-400">/mo</span>
                       </p>
                       <p className="text-xs text-gray-400 mb-2">
                         ≈ {convertFromINR(livePrice, userCurrency, rates) ?? `₹${livePrice}`}/mo
@@ -254,7 +255,7 @@ export default function BillingSettings({
                         ₹{livePrice.toLocaleString("en-IN")}<span className="text-xs font-normal text-gray-400">/mo</span>
                       </p>
                       <p className="text-xs text-gray-400 mb-2">
-                        ≈ ${p.priceUSD}/mo
+                        ≈ ${liveUSD}/mo
                       </p>
                     </>
                   )}
@@ -265,6 +266,7 @@ export default function BillingSettings({
                         planId={planId}
                         paypalPlanId={p.paypalPlanId}
                         planLabel={p.label}
+                        priceUSD={liveUSD}
                         onSuccess={(subId) => handlePayPalSuccess(subId, planId)}
                         onError={(msg) => showToast(msg, "error")}
                       />

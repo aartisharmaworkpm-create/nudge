@@ -128,12 +128,13 @@ export default function PricingCards({
           const isLoading   = loading === plan.id;
 
           // Price display: primary = user's preferred currency
+          // priceUSD comes from ResolvedPlan (live from PayPal API, falls back to plans.ts)
           const primaryPrice  = usePayPal
-            ? `$${planConfig?.priceUSD ?? "—"}`
+            ? `$${plan.priceUSD}`
             : `₹${plan.priceINR.toLocaleString("en-IN")}`;
           const secondaryPrice = usePayPal
             ? convertFromINR(plan.priceINR, userCurrency, rates) ?? null
-            : `$${planConfig?.priceUSD ?? "—"}`;
+            : `$${plan.priceUSD}`;
 
           return (
             <div
@@ -188,6 +189,7 @@ export default function PricingCards({
                   planId={plan.id}
                   paypalPlanId={planConfig?.paypalPlanId ?? ""}
                   planLabel={plan.label}
+                  priceUSD={plan.priceUSD}
                   onSuccess={(subId) => handlePayPalSuccess(subId, plan.id, plan.label)}
                   onError={(msg) => showToast(msg, "error")}
                 />
