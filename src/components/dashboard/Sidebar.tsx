@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { logout } from "@/app/actions/auth";
+import { signOut } from "next-auth/react";
 import { PLANS, isTrialActive } from "@/lib/plans";
 
 function PlanCard({ plan, trialEndsAt }: { plan: string; trialEndsAt: Date | string | null }) {
@@ -169,14 +169,13 @@ export default function Sidebar({
               >
                 Cancel
               </button>
-              <form action={logout} className="flex-1">
-                <button
-                  type="submit"
-                  className="w-full bg-teal-800 text-white rounded-lg py-2 text-sm font-medium hover:bg-teal-900 transition-colors"
-                >
-                  Yes, sign out
-                </button>
-              </form>
+              <button
+                type="button"
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                className="flex-1 bg-teal-800 text-white rounded-lg py-2 text-sm font-medium hover:bg-teal-900 transition-colors"
+              >
+                Yes, sign out
+              </button>
             </div>
           </div>
         </div>
