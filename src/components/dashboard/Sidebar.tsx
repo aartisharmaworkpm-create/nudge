@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { signOut } from "next-auth/react";
 import { PLANS, isTrialActive } from "@/lib/plans";
 
 function PlanCard({ plan, trialEndsAt }: { plan: string; trialEndsAt: Date | string | null }) {
@@ -180,7 +179,7 @@ export default function Sidebar({
               </button>
               <button
                 type="button"
-                onClick={() => signOut({ callbackUrl: "/login" })}
+                onClick={() => { window.location.href = "/api/auth/logout"; }}
                 className="flex-1 bg-teal-800 text-white rounded-lg py-2 text-sm font-medium hover:bg-teal-900 transition-colors"
               >
                 Yes, sign out
