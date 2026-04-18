@@ -123,7 +123,10 @@ export default function PayPalButton({
           onApprove: (data: { subscriptionID: string }) => onSuccess(data.subscriptionID),
           onError: (err: unknown) => {
             console.error("[PayPal] checkout error", err);
-            onError("PayPal checkout failed. Please try again.");
+            const msg = err && typeof err === "object" && "message" in err
+              ? String((err as { message: unknown }).message)
+              : String(err ?? "Unknown error");
+            onError(`PayPal error: ${msg}`);
           },
           onCancel: () => {},
         }).render(`#paypal-btn-${planId}`);
