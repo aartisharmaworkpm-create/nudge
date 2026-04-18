@@ -95,9 +95,9 @@ async function main() {
   const productId = await createProduct(token);
 
   const [starterId, growthId, proId] = await Promise.all([
-    createPlan(token, productId, { name: "Nudge Starter",  description: "Up to 40 invoices/month",  priceUSD: 9  }),
-    createPlan(token, productId, { name: "Nudge Growth",   description: "Up to 150 invoices/month", priceUSD: 19 }),
-    createPlan(token, productId, { name: "Nudge Pro",      description: "Up to 400 invoices/month", priceUSD: 39 }),
+    createPlan(token, productId, { name: "Nudge Starter",  description: "Up to 40 invoices/month",  priceUSD: 49  }),
+    createPlan(token, productId, { name: "Nudge Growth",   description: "Up to 150 invoices/month", priceUSD: 99  }),
+    createPlan(token, productId, { name: "Nudge Pro",      description: "Up to 400 invoices/month", priceUSD: 129 }),
   ]);
 
   console.log(`
