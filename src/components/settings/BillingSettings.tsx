@@ -204,10 +204,12 @@ export default function BillingSettings({
       {/* Plan cards */}
       <div className="grid grid-cols-1 gap-3">
         {(["STARTER", "GROWTH", "PRO"] as const).map((planId) => {
-          const p         = PLANS[planId];
-          const livePrice = resolvedMap[planId]?.priceINR ?? p.priceINR;
-          const liveUSD   = resolvedMap[planId]?.priceUSD ?? p.priceUSD;
-          const isCurrent = plan === planId;
+          const p            = PLANS[planId];
+          const resolved     = resolvedMap[planId];
+          const livePrice    = resolved?.priceINR    ?? p.priceINR;
+          const liveUSD      = resolved?.priceUSD    ?? p.priceUSD;
+          const paypalPlanId = resolved?.paypalPlanId ?? p.paypalPlanId;
+          const isCurrent    = plan === planId;
 
           return (
             <div
@@ -264,7 +266,7 @@ export default function BillingSettings({
                     usePayPal ? (
                       <PayPalButton
                         planId={planId}
-                        paypalPlanId={p.paypalPlanId}
+                        paypalPlanId={paypalPlanId}
                         planLabel={p.label}
                         priceUSD={liveUSD}
                         onSuccess={(subId) => handlePayPalSuccess(subId, planId)}

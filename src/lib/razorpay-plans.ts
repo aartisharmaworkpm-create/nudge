@@ -109,6 +109,7 @@ export type ResolvedPlan = {
   sequences: number | "unlimited";
   overage: number;
   overageUSD: number;
+  paypalPlanId: string;   // resolved server-side so client components can use it
 };
 
 export async function getResolvedPlans(): Promise<ResolvedPlan[]> {
@@ -131,6 +132,7 @@ export async function getResolvedPlans(): Promise<ResolvedPlan[]> {
         sequences:        plan.sequences,
         overage:          plan.overage,
         overageUSD:       plan.overageUSD,
+        paypalPlanId:     plan.paypalPlanId, // read server-side, passed to client as prop
       };
     })
   );

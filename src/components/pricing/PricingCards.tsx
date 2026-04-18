@@ -187,7 +187,7 @@ export default function PricingCards({
               {isLoggedIn && usePayPal ? (
                 <PayPalButton
                   planId={plan.id}
-                  paypalPlanId={planConfig?.paypalPlanId ?? ""}
+                  paypalPlanId={plan.paypalPlanId}
                   planLabel={plan.label}
                   priceUSD={plan.priceUSD}
                   onSuccess={(subId) => handlePayPalSuccess(subId, plan.id, plan.label)}
