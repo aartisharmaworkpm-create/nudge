@@ -1,12 +1,20 @@
 import Link from "next/link";
 
+type Page = "home" | "how-it-works" | "pricing" | "about" | "login" | "signup";
+
 export default function PublicHeader({
   activePage,
   isLoggedIn = false,
 }: {
-  activePage?: "login" | "signup" | "pricing";
+  activePage?: Page;
   isLoggedIn?: boolean;
 }) {
+  const navLinks: { href: string; label: string; page: Page }[] = [
+    { href: "/how-it-works", label: "How it works", page: "how-it-works" },
+    { href: "/pricing",      label: "Pricing",      page: "pricing"      },
+    { href: "/about",        label: "About",        page: "about"        },
+  ];
+
   return (
     <header className="sticky top-0 z-50 bg-cream/95 backdrop-blur-sm border-b border-gray-100">
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -17,16 +25,19 @@ export default function PublicHeader({
 
         {/* Nav links */}
         <nav className="hidden sm:flex items-center gap-6">
-          <Link
-            href="/pricing"
-            className={`text-sm transition-colors ${
-              activePage === "pricing"
-                ? "font-semibold text-teal-800"
-                : "text-gray-500 hover:text-gray-900"
-            }`}
-          >
-            Pricing
-          </Link>
+          {navLinks.map(({ href, label, page }) => (
+            <Link
+              key={href}
+              href={href}
+              className={`text-sm transition-colors ${
+                activePage === page
+                  ? "font-semibold text-teal-800"
+                  : "text-gray-500 hover:text-gray-900"
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
         </nav>
 
         {/* Right-side CTAs */}
