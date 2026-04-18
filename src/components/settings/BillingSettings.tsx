@@ -92,7 +92,7 @@ export default function BillingSettings({
         });
         if (verifyRes.ok) {
           // Redirect to billing tab with success flag — keeps tab open and shows toast
-          window.location.href = "/settings?tab=billing&success=1";
+          window.location.href = "/billing?success=1";
         } else {
           showToast("Payment verification failed.", "error");
         }
@@ -110,7 +110,7 @@ export default function BillingSettings({
     setShowCancelModal(false);
     if (res.ok) {
       showToast("Subscription cancelled. You keep access until the end of your billing period.");
-      setTimeout(() => { window.location.href = "/settings?tab=billing"; }, 1800);
+      setTimeout(() => { window.location.href = "/billing"; }, 1800);
     } else {
       showToast(data.error ?? "Failed to cancel. Please try again.", "error");
     }

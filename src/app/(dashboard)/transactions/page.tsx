@@ -67,7 +67,7 @@ export default async function TransactionsPage() {
             Your payment history will appear here once you subscribe to a plan.
           </p>
           <Link
-            href="/settings?tab=billing"
+            href="/billing"
             className="inline-flex items-center gap-1.5 bg-teal-800 text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-teal-900 transition-colors"
           >
             View plans →
@@ -139,7 +139,7 @@ export default async function TransactionsPage() {
 
       <p className="text-xs text-gray-400 text-center mt-6">
         Payments processed securely via Razorpay.{" "}
-        <Link href="/settings?tab=billing" className="hover:underline">Manage subscription →</Link>
+        <Link href="/billing" className="hover:underline">Manage subscription →</Link>
       </p>
     </div>
   );

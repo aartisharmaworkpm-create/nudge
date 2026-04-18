@@ -3,8 +3,6 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 import SettingsClient from "@/components/settings/SettingsClient";
-import { getResolvedPlans } from "@/lib/razorpay-plans";
-import { getINRRates } from "@/lib/exchange-rates";
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -17,17 +15,7 @@ export default async function SettingsPage() {
   if (!business) redirect("/onboard");
   if (!user) redirect("/login");
 
-  // Invoices created this calendar month
-  const startOfMonth = new Date();
-  startOfMonth.setDate(1);
-  startOfMonth.setHours(0, 0, 0, 0);
-  const invoicesThisMonth = await db.invoice.count({
-    where: { businessId: business.id, createdAt: { gte: startOfMonth } },
-  });
-
-  const [resolvedPlans, rates, globalTemplates, businessTemplates] = await Promise.all([
-    getResolvedPlans(),
-    getINRRates(),
+  const [globalTemplates, businessTemplates] = await Promise.all([
     db.messageTemplate.findMany({
       where: { businessId: null },
       orderBy: [{ step: "asc" }, { tone: "asc" }],
@@ -69,16 +57,6 @@ export default async function SettingsPage() {
         whatsappVerified: business.whatsappVerified,
       }}
       templates={templates}
-      billing={{
-        plan: (business.plan ?? "TRIAL") as import("@/lib/plans").PlanId,
-        trialEndsAt: business.trialEndsAt ?? null,
-        subscriptionStatus: business.subscriptionStatus ?? null,
-        currentPeriodEnd: business.currentPeriodEnd ?? null,
-        invoicesThisMonth,
-        resolvedPlans,
-        userCurrency: business.currency,
-        rates,
-      }}
     />
     </Suspense>
   );

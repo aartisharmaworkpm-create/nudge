@@ -47,7 +47,7 @@ export default function OnboardClient({ userName }: { userName: string }) {
     const pendingPlan = sessionStorage.getItem("nudge_pending_plan");
     if (pendingPlan) {
       sessionStorage.removeItem("nudge_pending_plan");
-      router.push(`/settings?tab=billing&plan=${pendingPlan}`);
+      router.push(`/billing?plan=${pendingPlan}`);
     } else {
       router.push("/dashboard?welcome=1");
     }

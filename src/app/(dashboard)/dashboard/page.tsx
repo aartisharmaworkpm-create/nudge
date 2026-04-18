@@ -149,12 +149,12 @@ function PlanBadge({
       ? Math.max(0, Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86400000))
       : 0;
     return active ? (
-      <Link href="/settings?tab=billing"
+      <Link href="/billing"
         className="inline-flex items-center gap-1 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full hover:bg-amber-100 transition-colors">
         Trial · {daysLeft}d left
       </Link>
     ) : (
-      <Link href="/settings?tab=billing"
+      <Link href="/billing"
         className="inline-flex items-center gap-1 text-xs font-semibold bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded-full hover:bg-red-100 transition-colors">
         Trial ended · Upgrade
       </Link>
@@ -162,7 +162,7 @@ function PlanBadge({
   }
   if (plan === "CANCELED") {
     return (
-      <Link href="/settings?tab=billing"
+      <Link href="/billing"
         className="inline-flex items-center gap-1 text-xs font-semibold bg-gray-100 text-gray-500 border border-gray-200 px-2 py-0.5 rounded-full hover:bg-gray-200 transition-colors">
         Cancelled
       </Link>
@@ -171,12 +171,12 @@ function PlanBadge({
   const label = PLANS[plan as keyof typeof PLANS]?.label ?? plan;
   const isOverdue = subscriptionStatus === "past_due";
   return isOverdue ? (
-    <Link href="/settings?tab=billing"
+    <Link href="/billing"
       className="inline-flex items-center gap-1 text-xs font-semibold bg-red-50 text-red-600 border border-red-200 px-2 py-0.5 rounded-full hover:bg-red-100 transition-colors">
       {label} · Payment overdue
     </Link>
   ) : (
-    <Link href="/settings?tab=billing"
+    <Link href="/billing"
       className="inline-flex items-center gap-1 text-xs font-semibold bg-teal-50 text-teal-800 border border-teal-100 px-2 py-0.5 rounded-full hover:bg-teal-100 transition-colors">
       <svg className="w-2.5 h-2.5 fill-teal-500" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4"/></svg>
       {label}
