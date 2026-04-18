@@ -59,7 +59,7 @@ export default async function PricingPage() {
         </div>
       </div>
 
-      <PricingCards plans={plans} isLoggedIn={isLoggedIn} userCurrency={userCurrency} rates={rates} />
+      <PricingCards plans={plans} isLoggedIn={isLoggedIn} userCurrency={userCurrency} rates={rates} paypalClientId={process.env.PAYPAL_CLIENT_ID ?? ""} />
 
       <section className="max-w-2xl mx-auto px-6 py-20">
         <h2 className="text-2xl font-black text-gray-900 text-center mb-8">Common questions</h2>

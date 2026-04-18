@@ -18,6 +18,7 @@ type Props = {
   userCurrency: string;
   rates: ExchangeRates;
   paymentProvider?: string | null;
+  paypalClientId?: string;
 };
 
 const PLAN_HIGHLIGHTS: Record<string, string[]> = {
@@ -36,6 +37,7 @@ export default function BillingSettings({
   userCurrency,
   rates,
   paymentProvider,
+  paypalClientId,
 }: Props) {
   const resolvedMap = Object.fromEntries(resolvedPlans.map((p) => [p.id, p]));
   const { showToast, toastNode } = useToast();
@@ -247,9 +249,11 @@ export default function BillingSettings({
                       <p className="text-lg font-bold text-gray-900">
                         ${liveUSD}<span className="text-xs font-normal text-gray-400">/mo</span>
                       </p>
-                      <p className="text-xs text-gray-400 mb-2">
-                        ≈ {convertFromINR(livePrice, userCurrency, rates) ?? `₹${livePrice}`}/mo
-                      </p>
+                      {userCurrency !== "USD" && convertFromINR(livePrice, userCurrency, rates) && (
+                        <p className="text-xs text-gray-400 mb-2">
+                          ≈ {convertFromINR(livePrice, userCurrency, rates)}/mo
+                        </p>
+                      )}
                     </>
                   ) : (
                     <>
@@ -269,6 +273,7 @@ export default function BillingSettings({
                         paypalPlanId={paypalPlanId}
                         planLabel={p.label}
                         priceUSD={liveUSD}
+                        clientIdOverride={paypalClientId}
                         onSuccess={(subId) => handlePayPalSuccess(subId, planId)}
                         onError={(msg) => showToast(msg, "error")}
                       />

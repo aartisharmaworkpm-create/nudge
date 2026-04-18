@@ -369,7 +369,7 @@ function Pricing({ plans, isLoggedIn, rates, guestCurrency }: { plans: ResolvedP
           14-day free trial · up to 5 invoices · no card required
         </div>
       </div>
-      <PricingCards plans={plans} isLoggedIn={isLoggedIn} rates={rates} userCurrency={guestCurrency} />
+      <PricingCards plans={plans} isLoggedIn={isLoggedIn} rates={rates} userCurrency={guestCurrency} paypalClientId={process.env.PAYPAL_CLIENT_ID ?? ""} />
     </section>
   );
 }

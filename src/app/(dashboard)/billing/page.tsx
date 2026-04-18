@@ -40,6 +40,7 @@ export default async function BillingPage() {
           userCurrency={business.currency}
           rates={rates}
           paymentProvider={business.paymentProvider ?? null}
+          paypalClientId={process.env.PAYPAL_CLIENT_ID ?? ""}
         />
       </Suspense>
     </div>

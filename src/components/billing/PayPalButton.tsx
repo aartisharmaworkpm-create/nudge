@@ -7,6 +7,8 @@ type Props = {
   paypalPlanId: string;
   planLabel: string;
   priceUSD: number;
+  /** Pass PAYPAL_CLIENT_ID from a server component so we don't need NEXT_PUBLIC_ */
+  clientIdOverride?: string;
   onSuccess: (subscriptionId: string) => void;
   onError: (msg: string) => void;
 };
@@ -68,6 +70,7 @@ export default function PayPalButton({
   paypalPlanId,
   planLabel,
   priceUSD,
+  clientIdOverride,
   onSuccess,
   onError,
 }: Props) {
@@ -75,7 +78,8 @@ export default function PayPalButton({
   const rendered = useRef(false);
   const [sdkReady, setSdkReady] = useState(false);
   const [sdkError, setSdkError] = useState(false);
-  const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? "";
+  // Prefer server-passed override so we don't need NEXT_PUBLIC_ env var
+  const clientId = clientIdOverride ?? process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? "";
 
   // Load SDK
   useEffect(() => {

@@ -46,11 +46,13 @@ export default function PricingCards({
   isLoggedIn,
   userCurrency = "INR",
   rates = {},
+  paypalClientId = "",
 }: {
   plans: ResolvedPlan[];
   isLoggedIn: boolean;
   userCurrency?: string;
   rates?: ExchangeRates;
+  paypalClientId?: string;
 }) {
   const router = useRouter();
   const { showToast, toastNode } = useToast();
@@ -159,7 +161,7 @@ export default function PricingCards({
                   <span className="text-3xl font-black text-gray-900">{primaryPrice}</span>
                   <span className="text-gray-400 text-sm mb-1">/mo</span>
                 </div>
-                {secondaryPrice && (
+                {secondaryPrice && userCurrency !== "USD" && (
                   <p className="text-xs text-gray-400 mb-1">≈ {secondaryPrice}/mo</p>
                 )}
                 {/* Payment method badge */}
@@ -203,6 +205,7 @@ export default function PricingCards({
                   paypalPlanId={plan.paypalPlanId}
                   planLabel={plan.label}
                   priceUSD={plan.priceUSD}
+                  clientIdOverride={paypalClientId}
                   onSuccess={(subId) => handlePayPalSuccess(subId, plan.id, plan.label)}
                   onError={(msg) => showToast(msg, "error")}
                 />
