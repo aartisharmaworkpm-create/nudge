@@ -16,6 +16,7 @@ type Props = {
 declare global {
   interface Window {
     paypal?: {
+      FUNDING: { PAYPAL: string };
       Buttons: (opts: unknown) => {
         render: (selector: string) => Promise<void>;
         isEligible: () => boolean;
@@ -113,7 +114,8 @@ export default function PayPalButton({
 
       try {
         await window.paypal.Buttons({
-          style: { shape: "rect", color: "blue", layout: "vertical", label: "subscribe" },
+          fundingSource: window.paypal.FUNDING.PAYPAL,
+          style: { shape: "rect", color: "blue", label: "subscribe", height: 44 },
           createSubscription: (
             _data: unknown,
             actions: { subscription: { create: (opts: unknown) => Promise<string> } }
