@@ -22,11 +22,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Business name is required." }, { status: 400 });
   }
 
+  const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // 14 days from now
+
   const business = await db.business.create({
     data: {
       userId: session.user.id,
       name: businessName.trim(),
       currency: currency ?? "GBP",
+      trialEndsAt,
     },
   });
 

@@ -23,6 +23,8 @@ export async function POST(req: Request) {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
+    const trialEndsAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // 14 days from now
+
     const user = await db.user.create({
       data: {
         email,
@@ -31,6 +33,7 @@ export async function POST(req: Request) {
           create: {
             name: businessName,
             currency: currency ?? "GBP",
+            trialEndsAt,
           },
         },
       },
