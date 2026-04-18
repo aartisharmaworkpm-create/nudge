@@ -74,8 +74,10 @@ model Business {
   // Billing
   plan                   String    @default("TRIAL")  // TRIAL | STARTER | GROWTH | PRO | CANCELED
   trialEndsAt            DateTime?
+  paymentProvider        String?                      // RAZORPAY | PAYPAL
   razorpayCustomerId     String?   @unique
   razorpaySubscriptionId String?   @unique
+  paypalSubscriptionId   String?   @unique
   subscriptionStatus     String?                      // active | past_due | canceled
   currentPeriodEnd       DateTime?
 
@@ -91,11 +93,14 @@ model Business {
 model Transaction {
   id                     String   @id @default(cuid())
   businessId             String
-  razorpayPaymentId      String   @unique
+  provider               String   @default("RAZORPAY")   // RAZORPAY | PAYPAL
+  razorpayPaymentId      String?  @unique
   razorpaySubscriptionId String?
-  amount                 Int      // paise
+  paypalOrderId          String?  @unique
+  paypalSubscriptionId   String?
+  amount                 Int      // smallest unit: paise (INR) or cents (USD)
   currency               String   @default("INR")
-  status                 String   // captured | failed | refunded
+  status                 String   // captured | COMPLETED | failed | refunded
   method                 String?
   planId                 String
   createdAt              DateTime @default(now())

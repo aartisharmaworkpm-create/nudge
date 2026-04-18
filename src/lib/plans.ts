@@ -4,11 +4,14 @@ export type Plan = {
   id: PlanId;
   label: string;
   priceINR: number;
+  priceUSD: number;        // for PayPal / international display
   invoicesPerMonth: number;
   whatsapp: boolean;
   sequences: number | "unlimited";
-  overage: number; // INR per invoice
+  overage: number;         // INR per invoice
+  overageUSD: number;      // USD cents per invoice (displayed as $X)
   razorpayPlanId: string;
+  paypalPlanId: string;
 };
 
 export const PLANS: Record<PlanId, Plan> = {
@@ -16,51 +19,66 @@ export const PLANS: Record<PlanId, Plan> = {
     id: "TRIAL",
     label: "Trial",
     priceINR: 0,
+    priceUSD: 0,
     invoicesPerMonth: 5,
     whatsapp: true,
     sequences: 1,
     overage: 0,
+    overageUSD: 0,
     razorpayPlanId: "",
+    paypalPlanId: "",
   },
   STARTER: {
     id: "STARTER",
     label: "Starter",
     priceINR: 4099,
+    priceUSD: 9,
     invoicesPerMonth: 40,
     whatsapp: false,
     sequences: 1,
     overage: 125,
+    overageUSD: 150, // $1.50 in cents
     razorpayPlanId: process.env.RAZORPAY_PLAN_STARTER ?? "",
+    paypalPlanId:   process.env.PAYPAL_PLAN_STARTER   ?? "",
   },
   GROWTH: {
     id: "GROWTH",
     label: "Growth",
     priceINR: 10799,
+    priceUSD: 19,
     invoicesPerMonth: 150,
     whatsapp: true,
     sequences: 3,
     overage: 67,
+    overageUSD: 80, // $0.80
     razorpayPlanId: process.env.RAZORPAY_PLAN_GROWTH ?? "",
+    paypalPlanId:   process.env.PAYPAL_PLAN_GROWTH   ?? "",
   },
   PRO: {
     id: "PRO",
     label: "Pro",
     priceINR: 20799,
+    priceUSD: 39,
     invoicesPerMonth: 400,
     whatsapp: true,
     sequences: Infinity as unknown as "unlimited",
     overage: 50,
+    overageUSD: 60, // $0.60
     razorpayPlanId: process.env.RAZORPAY_PLAN_PRO ?? "",
+    paypalPlanId:   process.env.PAYPAL_PLAN_PRO   ?? "",
   },
   CANCELED: {
     id: "CANCELED",
     label: "Canceled",
     priceINR: 0,
+    priceUSD: 0,
     invoicesPerMonth: 0,
     whatsapp: false,
     sequences: 0,
     overage: 0,
+    overageUSD: 0,
     razorpayPlanId: "",
+    paypalPlanId: "",
   },
 };
 

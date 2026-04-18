@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/Toast";
 import { PLANS, PAID_PLANS, isTrialActive, type PlanId } from "@/lib/plans";
 import type { ResolvedPlan } from "@/lib/razorpay-plans";
 import { convertFromINR, type ExchangeRates } from "@/lib/exchange-rates";
+import PayPalButton from "@/components/billing/PayPalButton";
 
 type Props = {
   plan: PlanId;
@@ -16,6 +17,7 @@ type Props = {
   resolvedPlans: ResolvedPlan[];
   userCurrency: string;
   rates: ExchangeRates;
+  paymentProvider?: string | null;
 };
 
 const PLAN_HIGHLIGHTS: Record<string, string[]> = {
@@ -33,8 +35,8 @@ export default function BillingSettings({
   resolvedPlans,
   userCurrency,
   rates,
+  paymentProvider,
 }: Props) {
-  // Build a lookup map so we can get live prices by plan ID
   const resolvedMap = Object.fromEntries(resolvedPlans.map((p) => [p.id, p]));
   const { showToast, toastNode } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
@@ -42,31 +44,33 @@ export default function BillingSettings({
   const [cancelling, setCancelling] = useState(false);
   const searchParams = useSearchParams();
 
+  // Use PayPal for non-INR users
+  const usePayPal = userCurrency !== "INR";
+
   useEffect(() => {
-    // Show success toast if redirected back after payment
     if (searchParams.get("success") === "1") {
       showToast("🎉 Subscription activated! Your plan is now live.");
-      // Clean up the URL param without re-rendering
       const url = new URL(window.location.href);
       url.searchParams.delete("success");
       window.history.replaceState(null, "", url.toString());
     }
 
-    // Auto-trigger checkout if arriving from onboard/pricing with ?plan=X
+    // Auto-trigger Razorpay checkout if arriving with ?plan=X (INR users only)
     const planParam = searchParams.get("plan") as PlanId | null;
-    if (planParam && PAID_PLANS.includes(planParam as "STARTER" | "GROWTH" | "PRO") && plan !== planParam) {
+    if (!usePayPal && planParam && PAID_PLANS.includes(planParam as "STARTER" | "GROWTH" | "PRO") && plan !== planParam) {
       const timer = setTimeout(() => handleRazorpayPlan(planParam), 500);
       return () => clearTimeout(timer);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const currentPlan = PLANS[plan] ?? PLANS.TRIAL;
-  const trialActive = isTrialActive(trialEndsAt ? new Date(trialEndsAt) : null);
+  const currentPlan  = PLANS[plan] ?? PLANS.TRIAL;
+  const trialActive  = isTrialActive(trialEndsAt ? new Date(trialEndsAt) : null);
   const trialDaysLeft = trialEndsAt
     ? Math.max(0, Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86400000))
     : 0;
 
+  // ── Razorpay (INR) ──────────────────────────────────────────────────────────
   async function handleRazorpayPlan(planId: PlanId) {
     setLoading(planId);
     const res = await fetch("/api/billing/razorpay/checkout", {
@@ -91,7 +95,6 @@ export default function BillingSettings({
           body: JSON.stringify({ ...response, planId }),
         });
         if (verifyRes.ok) {
-          // Redirect to billing tab with success flag — keeps tab open and shows toast
           window.location.href = "/billing?success=1";
         } else {
           showToast("Payment verification failed.", "error");
@@ -102,9 +105,29 @@ export default function BillingSettings({
     setLoading(null);
   }
 
+  // ── PayPal (international) ──────────────────────────────────────────────────
+  async function handlePayPalSuccess(subscriptionId: string, planId: PlanId) {
+    const res = await fetch("/api/billing/paypal/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscriptionId, planId }),
+    });
+    if (res.ok) {
+      window.location.href = "/billing?success=1";
+    } else {
+      const data = await res.json();
+      showToast(data.error ?? "Payment verification failed.", "error");
+    }
+  }
+
+  // ── Cancel ──────────────────────────────────────────────────────────────────
   async function handleCancel() {
     setCancelling(true);
-    const res = await fetch("/api/billing/razorpay/cancel", { method: "POST" });
+    const endpoint = usePayPal || paymentProvider === "PAYPAL"
+      ? "/api/billing/paypal/cancel"
+      : "/api/billing/razorpay/cancel";
+
+    const res  = await fetch(endpoint, { method: "POST" });
     const data = await res.json();
     setCancelling(false);
     setShowCancelModal(false);
@@ -119,33 +142,24 @@ export default function BillingSettings({
   return (
     <div className="space-y-4">
       {toastNode}
-
-      {/* Razorpay checkout script */}
-      <script src="https://checkout.razorpay.com/v1/checkout.js" async />
+      {!usePayPal && <script src="https://checkout.razorpay.com/v1/checkout.js" async />}
 
       {/* Current plan status */}
       <div className="bg-white border border-gray-200 rounded-2xl p-6">
         <h2 className="text-base font-semibold text-gray-900 mb-4">Current plan</h2>
 
-        {/* Plan info + usage bar */}
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xl font-bold text-gray-900">{currentPlan.label}</span>
               {plan === "TRIAL" && trialActive && (
-                <span className="text-xs bg-teal-50 text-teal-800 border border-teal-100 px-2 py-0.5 rounded-full">
-                  {trialDaysLeft}d left
-                </span>
+                <span className="text-xs bg-teal-50 text-teal-800 border border-teal-100 px-2 py-0.5 rounded-full">{trialDaysLeft}d left</span>
               )}
               {subscriptionStatus === "past_due" && (
-                <span className="text-xs bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 rounded-full">
-                  Payment overdue
-                </span>
+                <span className="text-xs bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 rounded-full">Payment overdue</span>
               )}
               {subscriptionStatus === "active" && (
-                <span className="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">
-                  Active
-                </span>
+                <span className="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full">Active</span>
               )}
             </div>
             <p className="text-sm text-gray-500">
@@ -153,7 +167,7 @@ export default function BillingSettings({
             </p>
             {currentPeriodEnd && plan !== "TRIAL" && (
               <p className="text-xs text-gray-400 mt-0.5">
-                Renews {new Date(currentPeriodEnd).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                Renews {new Date(currentPeriodEnd).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
               </p>
             )}
             {plan === "TRIAL" && !trialActive && (
@@ -161,28 +175,22 @@ export default function BillingSettings({
             )}
           </div>
 
-          {/* Usage bar */}
-          <div className="flex-shrink-0">
-            <div className="w-32">
-              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className="h-2 bg-teal-600 rounded-full transition-all"
-                  style={{
-                    width: `${Math.min(100, (invoicesThisMonth / (currentPlan.invoicesPerMonth || 1)) * 100)}%`,
-                  }}
-                />
-              </div>
-              <p className="text-xs text-gray-400 mt-1 text-right">invoices used</p>
+          <div className="flex-shrink-0 w-32">
+            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-2 bg-teal-600 rounded-full transition-all"
+                style={{ width: `${Math.min(100, (invoicesThisMonth / (currentPlan.invoicesPerMonth || 1)) * 100)}%` }}
+              />
             </div>
+            <p className="text-xs text-gray-400 mt-1 text-right">invoices used</p>
           </div>
         </div>
 
-        {/* Cancel subscription */}
         {subscriptionStatus === "active" && plan !== "TRIAL" && plan !== "CANCELED" && (
           <div className="mt-5 pt-4 border-t border-gray-100">
             <button
               onClick={() => setShowCancelModal(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-red-200 text-red-600 text-sm font-medium hover:bg-red-50 hover:border-red-300 transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-red-200 text-red-600 text-sm font-medium hover:bg-red-50 hover:border-red-300 transition-colors cursor-pointer"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
@@ -196,9 +204,8 @@ export default function BillingSettings({
       {/* Plan cards */}
       <div className="grid grid-cols-1 gap-3">
         {(["STARTER", "GROWTH", "PRO"] as const).map((planId) => {
-          const p = PLANS[planId];
+          const p         = PLANS[planId];
           const livePrice = resolvedMap[planId]?.priceINR ?? p.priceINR;
-          const localPrice = convertFromINR(livePrice, userCurrency, rates);
           const isCurrent = plan === planId;
 
           return (
@@ -228,22 +235,48 @@ export default function BillingSettings({
                         {h}
                       </li>
                     ))}
-                    <li className="text-xs text-gray-400 mt-0.5">Overage: ₹{p.overage}/invoice</li>
                   </ul>
                 </div>
-                <div className="flex-shrink-0 text-right">
-                  <p className="text-lg font-bold text-gray-900">₹{livePrice.toLocaleString("en-IN")}<span className="text-xs font-normal text-gray-400">/mo</span></p>
-                  {localPrice && (
-                    <p className="text-xs text-gray-400">≈ {localPrice}/mo</p>
+
+                <div className="flex-shrink-0 text-right min-w-[100px]">
+                  {usePayPal ? (
+                    <>
+                      <p className="text-lg font-bold text-gray-900">
+                        ${p.priceUSD}<span className="text-xs font-normal text-gray-400">/mo</span>
+                      </p>
+                      <p className="text-xs text-gray-400 mb-2">
+                        ≈ {convertFromINR(livePrice, userCurrency, rates) ?? `₹${livePrice}`}/mo
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-lg font-bold text-gray-900">
+                        ₹{livePrice.toLocaleString("en-IN")}<span className="text-xs font-normal text-gray-400">/mo</span>
+                      </p>
+                      <p className="text-xs text-gray-400 mb-2">
+                        ≈ ${p.priceUSD}/mo
+                      </p>
+                    </>
                   )}
+
                   {!isCurrent && (
-                    <button
-                      onClick={() => handleRazorpayPlan(planId)}
-                      disabled={!!loading}
-                      className="mt-2 bg-teal-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-900 disabled:opacity-50 transition-colors whitespace-nowrap"
-                    >
-                      {loading === planId ? "Loading…" : plan === "TRIAL" || plan === "CANCELED" ? "Subscribe" : "Switch"}
-                    </button>
+                    usePayPal ? (
+                      <PayPalButton
+                        planId={planId}
+                        paypalPlanId={p.paypalPlanId}
+                        planLabel={p.label}
+                        onSuccess={(subId) => handlePayPalSuccess(subId, planId)}
+                        onError={(msg) => showToast(msg, "error")}
+                      />
+                    ) : (
+                      <button
+                        onClick={() => handleRazorpayPlan(planId)}
+                        disabled={!!loading}
+                        className="mt-1 bg-teal-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-900 disabled:opacity-50 transition-colors cursor-pointer"
+                      >
+                        {loading === planId ? "Loading…" : plan === "TRIAL" || plan === "CANCELED" ? "Subscribe" : "Switch"}
+                      </button>
+                    )
                   )}
                 </div>
               </div>
@@ -252,9 +285,15 @@ export default function BillingSettings({
         })}
       </div>
 
-      <p className="text-xs text-gray-400 text-center">Payments processed securely by Razorpay. Cancel anytime.</p>
+      {/* Payment method note */}
+      <p className="text-xs text-gray-400 text-center">
+        {usePayPal
+          ? "Payments processed securely by PayPal. Cancel anytime."
+          : "Payments processed securely by Razorpay. Cancel anytime."
+        }
+      </p>
 
-      {/* Cancel confirmation modal */}
+      {/* Cancel modal */}
       {showCancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
@@ -271,14 +310,14 @@ export default function BillingSettings({
               <button
                 onClick={() => setShowCancelModal(false)}
                 disabled={cancelling}
-                className="flex-1 border border-gray-200 rounded-xl py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                className="flex-1 border border-gray-200 rounded-xl py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 Keep plan
               </button>
               <button
                 onClick={handleCancel}
                 disabled={cancelling}
-                className="flex-1 bg-red-600 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors"
+                className="flex-1 bg-red-600 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-red-700 disabled:opacity-50 transition-colors cursor-pointer"
               >
                 {cancelling ? "Cancelling…" : "Yes, cancel"}
               </button>

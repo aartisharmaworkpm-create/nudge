@@ -39,6 +39,7 @@ export default async function BillingPage() {
           resolvedPlans={resolvedPlans}
           userCurrency={business.currency}
           rates={rates}
+          paymentProvider={business.paymentProvider ?? null}
         />
       </Suspense>
     </div>
