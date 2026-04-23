@@ -3,10 +3,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-dm-sans);
+  --font-serif: var(--font-dm-serif);
 
-  /* Nudge design system */
+  /* Existing Nudge dashboard palette (kept for dashboard) */
   --color-teal-950: #0D3B36;
   --color-teal-900: #14504A;
   --color-teal-800: #1A5551;
@@ -17,17 +17,122 @@
   --color-teal-200: #9FD9D1;
   --color-teal-100: #D0EDEA;
   --color-teal-50:  #EBF7F5;
-  --color-cream:    #F5F5F1;
+  --color-cream:      #F5F5F1;
   --color-cream-dark: #E8E8E3;
+
+  /* Landing page design system */
+  --color-brand:           #1e5c58;
+  --color-brand-light:     #2a7a74;
+  --color-brand-dim:       #164744;
+  --color-ink:             #1c1c1c;
+  --color-ink-soft:        #4a4a45;
+  --color-ink-muted:       #8a8880;
+  --color-warm-cream:      #f5f0e8;
+  --color-warm-cream-dark: #ede7da;
+  --color-off-white:       #fdfcf9;
 }
 
 :root {
   --background: #F5F5F1;
   --foreground: #111111;
+  /* Amber accent — used in pseudo-elements & inline gradients */
+  --amber:      oklch(72% 0.11 60);
+  --amber-soft: oklch(94% 0.04 65);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), sans-serif;
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  overflow-x: hidden;
 }
+
+/* ── Amber underline on hero "pain word" ── */
+.pain-word {
+  position: relative;
+  display: inline-block;
+}
+.pain-word::after {
+  content: '';
+  position: absolute;
+  bottom: 4px; left: 0; right: 0;
+  height: 3px;
+  background: var(--amber);
+  border-radius: 2px;
+}
+
+/* ── Pain card amber top stripe ── */
+.pain-card-amber {
+  position: relative;
+  overflow: hidden;
+}
+.pain-card-amber::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--amber);
+}
+
+/* ── Decorative radial glows (pseudo-element overlays) ── */
+.hero-glow {
+  position: relative;
+  overflow: hidden;
+}
+.hero-glow::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 30%, oklch(95% 0.025 165 / 0.4), transparent);
+  pointer-events: none;
+}
+
+.pivot-glow {
+  position: relative;
+  overflow: hidden;
+}
+.pivot-glow::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 70% 80% at 50% 50%, oklch(35% 0.07 168), transparent);
+  pointer-events: none;
+}
+
+.results-glow {
+  position: relative;
+  overflow: hidden;
+}
+.results-glow::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 70% at 30% 50%, oklch(30% 0.07 168), transparent);
+  pointer-events: none;
+}
+
+/* ── Steps connector line ── */
+.steps-grid {
+  position: relative;
+}
+.steps-grid::before {
+  content: '';
+  position: absolute;
+  top: 44px;
+  left: calc(16.66% + 24px);
+  right: calc(16.66% + 24px);
+  height: 1px;
+  background: linear-gradient(to right, var(--color-warm-cream-dark), var(--color-brand-light) 50%, var(--color-warm-cream-dark));
+}
+@media (max-width: 640px) {
+  .steps-grid::before { display: none; }
+}
+
+/* ── Scroll reveal ── */
+.reveal { opacity: 1; transform: none; }
+.reveal.anim {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.anim.visible { opacity: 1; transform: none; }
+.reveal.anim.delay-1 { transition-delay: 0.12s; }
+.reveal.anim.delay-2 { transition-delay: 0.24s; }
+.reveal.anim.delay-3 { transition-delay: 0.36s; }
