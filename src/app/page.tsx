@@ -97,12 +97,14 @@ function Hero() {
         </p>
 
         <div className="reveal delay-2 flex flex-col items-center gap-4">
-          <Link
-            href="/signup"
+          <a
+            href="https://tally.so/r/8181O5"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-brand text-white text-base font-semibold px-9 py-4 rounded-[10px] hover:bg-brand-light transition-colors"
           >
             Get Early Access
-          </Link>
+          </a>
           <div className="flex flex-wrap gap-6 items-center justify-center text-[13px] text-ink-muted">
             {["No credit card required", "Free to join", "Early members shape what we build"].map((t) => (
               <span key={t} className="flex items-center gap-1.5">
@@ -441,12 +443,14 @@ function CloserCTA() {
         an awkward payment chase again.
       </p>
       <div className="reveal delay-2">
-        <Link
-          href="/signup"
+        <a
+          href="https://tally.so/r/8181O5"
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center gap-2 bg-brand text-white text-base font-semibold px-9 py-4 rounded-[10px] hover:bg-brand-light transition-colors"
         >
           Get Early Access
-        </Link>
+        </a>
         <div className="mt-5 flex flex-wrap gap-4 items-center justify-center text-[13px] text-ink-muted">
           <span>No credit card required</span>
           <span>·</span>
