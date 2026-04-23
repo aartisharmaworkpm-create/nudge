@@ -7,7 +7,21 @@
       "Bash(pip install:*)",
       "Bash(npm --version)",
       "Bash(npx --version)",
-      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git)"
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma:*)",
+      "Bash(npx tsc:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/nudge\" npx prisma generate)",
+      "Bash(node -e \"console.log\\(require\\(''crypto''\\).randomBytes\\(32\\).toString\\(''base64''\\)\\)\")",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(xargs grep:*)",
+      "Bash(echo {})",
+      "Bash(node -e \"const s = require\\('stripe'\\); console.log\\(s.LATEST_API_VERSION\\)\")",
+      "Bash(npm uninstall:*)",
+      "Bash(npm run:*)",
+      "Bash(npx next:*)"
     ]
   }
 }

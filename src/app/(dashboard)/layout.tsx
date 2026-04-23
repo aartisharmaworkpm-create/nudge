@@ -20,7 +20,12 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex h-screen bg-cream">
-      <Sidebar businessName={business.name} userEmail={session.user.email ?? ""} />
+      <Sidebar
+        businessName={business.name}
+        userEmail={session.user.email ?? ""}
+        plan={business.plan ?? "TRIAL"}
+        trialEndsAt={business.trialEndsAt ?? null}
+      />
       <main className="flex-1 overflow-y-auto">
         {children}
       </main>

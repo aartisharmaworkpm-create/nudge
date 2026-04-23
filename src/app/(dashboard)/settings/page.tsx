@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
@@ -7,8 +8,12 @@ export default async function SettingsPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const business = await db.business.findUnique({ where: { userId: session.user.id } });
+  const [business, user] = await Promise.all([
+    db.business.findUnique({ where: { userId: session.user.id } }),
+    db.user.findUnique({ where: { id: session.user.id } }),
+  ]);
   if (!business) redirect("/onboard");
+  if (!user) redirect("/login");
 
   const [globalTemplates, businessTemplates] = await Promise.all([
     db.messageTemplate.findMany({
@@ -36,7 +41,13 @@ export default async function SettingsPage() {
   });
 
   return (
+    <Suspense>
     <SettingsClient
+      user={{
+        name: user.name,
+        email: user.email,
+        hasPassword: !!user.passwordHash,
+      }}
       business={{
         id: business.id,
         name: business.name,
@@ -47,5 +58,6 @@ export default async function SettingsPage() {
       }}
       templates={templates}
     />
+    </Suspense>
   );
 }

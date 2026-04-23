@@ -1,70 +1,77 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { auth } from "@/lib/auth";
 
-// ── Scroll-reveal hook ─────────────────────────────────────────────────────────
-function useScrollReveal() {
-  useEffect(() => {
-    const els = document.querySelectorAll<HTMLElement>(".reveal");
-    els.forEach((el) => {
-      const rect = el.getBoundingClientRect();
-      if (rect.top >= window.innerHeight) el.classList.add("anim");
-    });
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("visible"); }),
-      { threshold: 0 }
-    );
-    document.querySelectorAll(".reveal.anim").forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-}
+// Inline scripts injected at page end — handles nav scroll blur + scroll reveal
+// without requiring "use client" on the entire page.
+const LANDING_SCRIPTS = `
+(function(){
+  // Nav scroll blur
+  var nav = document.getElementById('landing-nav');
+  if (nav) {
+    window.addEventListener('scroll', function() {
+      nav.classList.toggle('nav-scrolled', window.scrollY > 20);
+    }, { passive: true });
+  }
+  // Scroll reveal
+  var els = document.querySelectorAll('.reveal');
+  els.forEach(function(el) {
+    if (el.getBoundingClientRect().top >= window.innerHeight) el.classList.add('anim');
+  });
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0 });
+  document.querySelectorAll('.reveal.anim').forEach(function(el) { obs.observe(el); });
+})();
+`;
 
-// ── Page ──────────────────────────────────────────────────────────────────────
-export default function LandingPage() {
-  useScrollReveal();
+export default async function LandingPage() {
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
+
   return (
-    <div className="min-h-screen bg-warm-cream text-ink font-sans">
-      <Nav />
-      <Hero />
-      <PainSection />
-      <PivotSection />
-      <HowItWorks />
-      <ProofSection />
-      <ResultsSection />
-      <CloserCTA />
-      <Footer />
-    </div>
+    <>
+      <div className="min-h-screen bg-warm-cream text-ink font-sans">
+        <Nav isLoggedIn={isLoggedIn} />
+        <Hero />
+        <PainSection />
+        <PivotSection />
+        <HowItWorks />
+        <ProofSection />
+        <ResultsSection />
+        <CloserCTA />
+        <LandingFooter />
+      </div>
+      {/* eslint-disable-next-line react/no-danger */}
+      <script dangerouslySetInnerHTML={{ __html: LANDING_SCRIPTS }} />
+    </>
   );
 }
 
 // ── Nav ───────────────────────────────────────────────────────────────────────
-function Nav() {
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
+function Nav({ isLoggedIn }: { isLoggedIn: boolean }) {
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 sm:px-12 h-16 transition-all duration-300 ${
-        scrolled
-          ? "bg-warm-cream/95 backdrop-blur-xl border-b border-brand/10"
-          : "bg-warm-cream border-b border-transparent"
-      }`}
+      id="landing-nav"
+      className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 sm:px-12 h-16 bg-warm-cream border-b border-transparent transition-[border-color,background] duration-300"
     >
-      <Link href="/" className="font-serif text-[22px] text-ink tracking-[-0.5px] no-underline">
+      <Link href="/" className="font-serif text-[22px] text-ink tracking-[-0.5px]">
         Nudge<span className="text-brand">.</span>
       </Link>
-      <Link
-        href="/signup"
-        className="inline-flex items-center gap-2 bg-brand text-white text-sm font-semibold px-[22px] py-[11px] rounded-lg hover:bg-brand-light transition-all duration-200 hover:-translate-y-px"
-      >
-        Join the waitlist
-      </Link>
+      {isLoggedIn ? (
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 bg-brand text-white text-sm font-semibold px-[22px] py-[11px] rounded-lg hover:bg-brand-light transition-colors"
+        >
+          Go to dashboard
+        </Link>
+      ) : (
+        <Link
+          href="/signup"
+          className="inline-flex items-center gap-2 bg-brand text-white text-sm font-semibold px-[22px] py-[11px] rounded-lg hover:bg-brand-light transition-colors"
+        >
+          Join the waitlist
+        </Link>
+      )}
     </header>
   );
 }
@@ -85,13 +92,14 @@ function Hero() {
         </h1>
 
         <p className="reveal delay-1 text-[17px] leading-[1.65] text-ink-soft font-light max-w-[520px] mx-auto mb-11">
-          Nudge automatically follows up on every invoice — via email and WhatsApp — so you get paid without the chase, the awkwardness, or the waiting.
+          Nudge automatically follows up on every invoice — via email and WhatsApp — so
+          you get paid without the chase, the awkwardness, or the waiting.
         </p>
 
         <div className="reveal delay-2 flex flex-col items-center gap-4">
           <Link
             href="/signup"
-            className="inline-flex items-center gap-2 bg-brand text-white text-base font-semibold px-9 py-4 rounded-[10px] hover:bg-brand-light transition-all duration-200 hover:-translate-y-px"
+            className="inline-flex items-center gap-2 bg-brand text-white text-base font-semibold px-9 py-4 rounded-[10px] hover:bg-brand-light transition-colors"
           >
             Get Early Access
           </Link>
@@ -152,7 +160,7 @@ function PainSection() {
           {PAIN_CARDS.map(({ day, headline, body, quote, delay }) => (
             <div
               key={day}
-              className={`reveal ${delay} pain-card-amber bg-warm-cream border border-warm-cream-dark rounded-2xl p-8 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(30,92,88,0.08)]`}
+              className={`reveal ${delay} pain-card-amber bg-warm-cream border border-warm-cream-dark rounded-2xl p-8 transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(30,92,88,0.08)]`}
             >
               <div className="text-[11px] font-semibold tracking-[0.1em] uppercase mb-3" style={{ color: "var(--amber)" }}>
                 {day}
@@ -170,7 +178,7 @@ function PainSection() {
   );
 }
 
-// ── Pivot / Shift ─────────────────────────────────────────────────────────────
+// ── Pivot / Emotional Shift ───────────────────────────────────────────────────
 function PivotSection() {
   return (
     <section className="pivot-glow bg-brand py-24 px-6 text-center">
@@ -178,12 +186,14 @@ function PivotSection() {
         <p className="reveal text-[11px] font-semibold tracking-[0.16em] uppercase mb-6" style={{ color: "oklch(85% 0.09 168)" }}>
           A better way
         </p>
-        <h2 className="reveal font-serif text-[clamp(36px,5vw,66px)] leading-[1.1] tracking-[-0.02em] text-white max-w-[780px] mx-auto mb-6">
-          What if money just… <em style={{ color: "oklch(82% 0.12 168)" }}>arrived</em>?<br />
+        <h2 className="reveal font-serif text-[clamp(36px,5vw,66px)] leading-[1.1] tracking-[-0.02em] text-white mb-6">
+          What if money just…{" "}
+          <em style={{ color: "oklch(82% 0.12 168)" }}>arrived</em>?<br />
           Without you having to ask.
         </h2>
         <p className="reveal delay-1 text-[17px] leading-[1.6] font-light max-w-[500px] mx-auto" style={{ color: "oklch(85% 0.04 168)" }}>
-          Nudge sends the follow-ups for you. Professional, timely, on-brand — so you stay focused on work, not admin.
+          Nudge sends the follow-ups for you. Professional, timely, on-brand — so
+          you stay focused on work, not admin.
         </p>
       </div>
     </section>
@@ -195,28 +205,28 @@ const STEPS = [
   {
     n: "1",
     feeling: "You feel: in control",
-    feelingColor: "text-ink-muted",
-    numBg: "bg-ink",
+    feelingClass: "text-ink-muted",
+    numClass: "bg-ink",
     title: "Add your invoice",
-    body: (<>Enter the client name, amount, and due date. <strong className="font-medium text-ink">60 seconds.</strong> No accounting software needed, no integrations to configure.</>),
+    body: "Enter the client name, amount, and due date. 60 seconds. No accounting software needed, no integrations to configure.",
     delay: "",
   },
   {
     n: "2",
     feeling: "You feel: relieved",
-    feelingColor: "text-brand",
-    numBg: "bg-brand",
+    feelingClass: "text-brand",
+    numClass: "bg-brand",
     title: "Nudge handles the follow-ups",
-    body: (<>A polite, escalating sequence of reminders goes out automatically — via <strong className="font-medium text-ink">email and WhatsApp</strong> — at exactly the right time. No awkwardness. No manual effort.</>),
+    body: "A polite, escalating sequence of reminders goes out automatically — via email and WhatsApp — at exactly the right time. No awkwardness. No manual effort.",
     delay: "delay-1",
   },
   {
     n: "3",
     feeling: "You feel: free",
-    feelingColor: "text-brand-light",
-    numBg: "bg-brand-light",
+    feelingClass: "text-brand-light",
+    numClass: "bg-brand-light",
     title: "You get paid",
-    body: (<>Payment links are embedded in every message. Clients pay <strong className="font-medium text-ink">directly, instantly</strong> — one click. You don&apos;t lift a finger.</>),
+    body: "Payment links are embedded in every message. Clients pay directly, instantly — one click. You don't lift a finger.",
     delay: "delay-2",
   },
 ];
@@ -225,7 +235,7 @@ function HowItWorks() {
   return (
     <section className="bg-warm-cream py-24 px-6">
       <div className="max-w-[1100px] mx-auto">
-        <div className="text-center mb-18">
+        <div className="text-center mb-20">
           <p className="reveal text-[11px] font-semibold tracking-[0.14em] uppercase text-ink-muted mb-5">
             How it works
           </p>
@@ -237,13 +247,13 @@ function HowItWorks() {
           </p>
         </div>
 
-        <div className="steps-grid grid grid-cols-1 sm:grid-cols-3 gap-0 mt-18">
-          {STEPS.map(({ n, feeling, feelingColor, numBg, title, body, delay }) => (
+        <div className="steps-grid grid grid-cols-1 sm:grid-cols-3 gap-0">
+          {STEPS.map(({ n, feeling, feelingClass, numClass, title, body, delay }) => (
             <div key={n} className={`reveal ${delay} px-8 pb-10 sm:pb-0`}>
-              <div className={`w-12 h-12 rounded-full ${numBg} text-white flex items-center justify-center font-serif text-xl mb-7 relative z-10`}>
+              <div className={`w-12 h-12 rounded-full ${numClass} text-white flex items-center justify-center font-serif text-xl mb-7 relative z-10`}>
                 {n}
               </div>
-              <div className={`text-[11px] font-semibold tracking-[0.1em] uppercase mb-2.5 ${feelingColor}`}>
+              <div className={`text-[11px] font-semibold tracking-[0.1em] uppercase mb-2.5 ${feelingClass}`}>
                 {feeling}
               </div>
               <h3 className="font-serif text-[22px] leading-[1.25] text-ink mb-3">{title}</h3>
@@ -256,17 +266,18 @@ function HowItWorks() {
   );
 }
 
-// ── Proof / Message mockups ───────────────────────────────────────────────────
+// ── Proof / Message Mockups ───────────────────────────────────────────────────
 function ProofSection() {
   return (
     <section className="bg-off-white py-24 px-6">
       <div className="max-w-[1100px] mx-auto">
-        <div className="text-center mb-15">
+        <div className="text-center mb-16">
           <p className="reveal text-[11px] font-semibold tracking-[0.14em] uppercase text-ink-muted mb-5">
             What your clients actually receive
           </p>
           <h2 className="reveal font-serif text-[clamp(28px,3.5vw,44px)] leading-[1.15] text-ink mb-3">
-            Professional. On-brand.<br /><em className="text-brand">One click to pay.</em>
+            Professional. On-brand.<br />
+            <em className="text-brand">One click to pay.</em>
           </h2>
           <p className="reveal delay-1 text-base text-ink-soft font-light">
             Your clients get a polished reminder — not a generic chase. It feels like you wrote it yourself.
@@ -277,7 +288,9 @@ function ProofSection() {
           {/* WhatsApp mockup */}
           <div className="reveal rounded-[20px] overflow-hidden shadow-[0_4px_40px_rgba(30,92,88,0.12),0_1px_6px_rgba(0,0,0,0.06)]">
             <div className="bg-brand px-5 py-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-serif text-sm text-white font-semibold">MS</div>
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-serif text-sm text-white font-semibold">
+                MS
+              </div>
               <div>
                 <div className="text-[15px] font-semibold text-white">Meridian Studio</div>
                 <div className="text-xs text-white/70">Business account</div>
@@ -286,7 +299,9 @@ function ProofSection() {
             <div className="bg-[#e8ebe0] p-5">
               <div className="bg-white rounded-xl rounded-tl-sm p-4 max-w-[85%] shadow-[0_1px_3px_rgba(0,0,0,0.1)]">
                 <p className="text-sm leading-[1.6] text-ink mb-3">
-                  Hi Sarah 👋 Just a quick note — invoice #1042 for <strong className="font-medium">£3,200</strong> from Meridian Studio is due in 3 days, on 2 April.<br /><br />
+                  Hi Sarah 👋 Just a quick note — invoice #1042 for{" "}
+                  <strong className="font-medium">£3,200</strong> from Meridian Studio is due in 3
+                  days, on 2 April.<br /><br />
                   You can pay directly here. Let us know if you have any questions.
                 </p>
                 <p className="text-xs text-ink-muted italic mb-3">— The Meridian Studio Team</p>
@@ -313,12 +328,17 @@ function ProofSection() {
                   1 day overdue
                 </span>
               </div>
-              <h3 className="font-serif text-[22px] text-ink mb-1.5">Invoice #1042 — payment not yet received</h3>
-              <p className="text-xs text-ink-muted mb-5">From: The Meridian Studio Team · To: sarah@clientco.com</p>
+              <h3 className="font-serif text-[22px] text-ink mb-1.5">
+                Invoice #1042 — payment not yet received
+              </h3>
+              <p className="text-xs text-ink-muted mb-5">
+                From: The Meridian Studio Team · To: sarah@clientco.com
+              </p>
               <p className="text-sm leading-[1.65] text-ink-soft py-4 border-t border-[#f0f0f0] mb-5">
                 Hi Sarah,<br /><br />
                 Invoice #1042 for £3,200 was due yesterday and we haven&apos;t received payment yet.
-                We know things get busy — if this slipped off the radar, no problem. You can pay directly below.
+                We know things get busy — if this slipped off the radar, no problem. You can pay
+                directly below.
               </p>
               <div className="border border-[#f0f0f0] rounded-lg overflow-hidden mb-5">
                 {[["Invoice", "#1042"], ["Amount", "£3,200.00"], ["Due date", "2 April 2026"]].map(([k, v]) => (
@@ -328,10 +348,12 @@ function ProofSection() {
                   </div>
                 ))}
               </div>
-              <div className="block w-full bg-brand text-white text-center py-[14px] rounded-lg font-semibold text-sm tracking-[0.04em] mb-3.5">
+              <div className="bg-brand text-white text-center py-[14px] rounded-lg font-semibold text-sm tracking-[0.04em] mb-3.5">
                 PAY NOW →
               </div>
-              <p className="text-center text-[11px] text-ink-muted">Sent via Nudge on behalf of Meridian Studio</p>
+              <p className="text-center text-[11px] text-ink-muted">
+                Sent via Nudge on behalf of Meridian Studio
+              </p>
             </div>
           </div>
         </div>
@@ -363,14 +385,23 @@ function ResultsSection() {
   return (
     <section className="results-glow bg-brand-dim py-24 px-6">
       <div className="max-w-[1100px] mx-auto relative z-10">
-        <p className="reveal text-[11px] font-semibold tracking-[0.14em] uppercase text-center mb-5" style={{ color: "oklch(75% 0.1 168)" }}>
+        <p
+          className="reveal text-[11px] font-semibold tracking-[0.14em] uppercase text-center mb-5"
+          style={{ color: "oklch(75% 0.1 168)" }}
+        >
           Early beta results
         </p>
-        <div className="reveal font-serif text-[clamp(60px,9vw,120px)] leading-none tracking-[-0.03em] text-center text-white mb-3">
+        <div
+          className="reveal font-serif text-[clamp(60px,9vw,120px)] leading-none tracking-[-0.03em] text-center text-white mb-3"
+        >
           30–<em style={{ color: "oklch(75% 0.14 168)" }}>45 days</em>
         </div>
-        <p className="reveal text-base leading-[1.6] font-light text-center max-w-[480px] mx-auto mb-16" style={{ color: "oklch(75% 0.05 168)" }}>
-          Average collection time for Nudge users — down from 90+ days. That&apos;s months of cash flow, reclaimed.
+        <p
+          className="reveal text-base leading-[1.6] font-light text-center max-w-[480px] mx-auto mb-16"
+          style={{ color: "oklch(75% 0.05 168)" }}
+        >
+          Average collection time for Nudge users — down from 90+ days.
+          That&apos;s months of cash flow, reclaimed.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -380,7 +411,12 @@ function ResultsSection() {
               className={`reveal ${delay} rounded-[14px] p-7 border border-white/10 bg-white/[0.06] hover:bg-white/[0.09] transition-colors`}
             >
               <div className="text-[15px] font-semibold text-white mb-2.5">{title}</div>
-              <div className="text-[13px] leading-[1.65] font-light" style={{ color: "oklch(75% 0.04 168)" }}>{body}</div>
+              <div
+                className="text-[13px] leading-[1.65] font-light"
+                style={{ color: "oklch(75% 0.04 168)" }}
+              >
+                {body}
+              </div>
             </div>
           ))}
         </div>
@@ -401,16 +437,17 @@ function CloserCTA() {
         <em className="text-brand">live rent-free in your head.</em>
       </h2>
       <p className="reveal delay-1 text-[17px] leading-[1.65] text-ink-soft font-light max-w-[480px] mx-auto mb-11">
-        Join the waitlist. It&apos;s free, takes 30 seconds, and means you&apos;ll never write an awkward payment chase again.
+        Join the waitlist. It&apos;s free, takes 30 seconds, and means you&apos;ll never write
+        an awkward payment chase again.
       </p>
       <div className="reveal delay-2">
         <Link
           href="/signup"
-          className="inline-flex items-center gap-2 bg-brand text-white text-base font-semibold px-9 py-4 rounded-[10px] hover:bg-brand-light transition-all duration-200 hover:-translate-y-px"
+          className="inline-flex items-center gap-2 bg-brand text-white text-base font-semibold px-9 py-4 rounded-[10px] hover:bg-brand-light transition-colors"
         >
           Get Early Access
         </Link>
-        <div className="mt-5 flex gap-7 items-center justify-center text-[13px] text-ink-muted">
+        <div className="mt-5 flex flex-wrap gap-4 items-center justify-center text-[13px] text-ink-muted">
           <span>No credit card required</span>
           <span>·</span>
           <span>Free to join</span>
@@ -423,7 +460,7 @@ function CloserCTA() {
 }
 
 // ── Footer ────────────────────────────────────────────────────────────────────
-function Footer() {
+function LandingFooter() {
   return (
     <footer className="bg-ink px-6 sm:px-12 py-8 flex flex-col sm:flex-row items-center justify-between gap-3">
       <div className="font-serif text-[18px] text-white">

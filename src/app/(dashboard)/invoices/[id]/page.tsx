@@ -37,6 +37,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
         formattedAmount: formatCurrency(Number(invoice.amount), invoice.currency),
         formattedDueDate: formatDate(invoice.dueDate),
         daysOverdue: daysOverdue(invoice.dueDate),
+        paymentType: invoice.paymentType ?? "LINK",
       }}
       businessName={business.name}
     />

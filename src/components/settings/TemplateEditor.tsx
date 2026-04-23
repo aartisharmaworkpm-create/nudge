@@ -8,6 +8,7 @@ const STEPS: Record<number, { label: string; desc: string }> = {
   1: { label: "Day 1", desc: "First reminder — invoice just overdue" },
   2: { label: "Day 7", desc: "Follow-up — second reminder" },
   3: { label: "Day 14", desc: "Final notice — last attempt" },
+  4: { label: "Day 21", desc: "Extended follow-up — last chance" },
 };
 
 const TONE_CONFIG: Record<string, { label: string; color: string; badge: string }> = {
@@ -82,7 +83,7 @@ export default function TemplateEditor({ templates }: { templates: TemplateData[
           <div>
             <h2 className="text-base font-semibold text-gray-900">Message templates</h2>
             <p className="text-sm text-gray-500 mt-1">
-              9 templates — 3 tones × 3 steps. Edits here become your defaults for all new invoices.
+              12 templates — 3 tones × 4 steps. Edits here become your defaults for all new invoices.
               You can still edit individual messages in the sequence preview screen.
             </p>
           </div>
@@ -131,7 +132,7 @@ export default function TemplateEditor({ templates }: { templates: TemplateData[
 
       {/* Step cards */}
       <div className="space-y-3">
-        {[1, 2, 3].map((step) => {
+        {[1, 2, 3, 4].map((step) => {
           const key = `${step}:${activeTone}`;
           const template = getTemplate(step, activeTone);
           const body = getBody(step, activeTone);

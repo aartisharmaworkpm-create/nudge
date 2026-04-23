@@ -4,9 +4,10 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-dm-serif);
 
-  /* Existing Nudge dashboard palette (kept for dashboard) */
+  /* Existing Nudge dashboard palette */
   --color-teal-950: #0D3B36;
   --color-teal-900: #14504A;
   --color-teal-800: #1A5551;
@@ -45,6 +46,10 @@ body {
   color: var(--foreground);
   font-family: var(--font-dm-sans), system-ui, sans-serif;
   overflow-x: hidden;
+}
+
+button, [role="button"], a {
+  cursor: pointer;
 }
 
 /* ── Amber underline on hero "pain word" ── */
@@ -123,6 +128,13 @@ body {
 }
 @media (max-width: 640px) {
   .steps-grid::before { display: none; }
+}
+
+/* ── Nav scrolled state (toggled via JS) ── */
+#landing-nav.nav-scrolled {
+  border-color: rgba(30, 92, 88, 0.12);
+  background: rgba(245, 240, 232, 0.96);
+  backdrop-filter: blur(12px);
 }
 
 /* ── Scroll reveal ── */

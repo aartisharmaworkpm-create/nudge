@@ -1,14 +1,25 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import BusinessSettings from "./BusinessSettings";
 import TemplateEditor from "./TemplateEditor";
 import EmailSettings from "./EmailSettings";
 import WhatsAppSettings from "./WhatsAppSettings";
+import ProfileSettings from "./ProfileSettings";
 
-type Tab = "business" | "templates" | "email" | "whatsapp";
+type Tab = "profile" | "business" | "templates" | "email" | "whatsapp";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
+  {
+    id: "profile",
+    label: "Profile",
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg>
+    ),
+  },
   {
     id: "business",
     label: "Business",
@@ -47,6 +58,12 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   },
 ];
 
+export type UserData = {
+  name: string | null;
+  email: string;
+  hasPassword: boolean;
+};
+
 export type BusinessData = {
   id: string;
   name: string;
@@ -66,13 +83,17 @@ export type TemplateData = {
 };
 
 export default function SettingsClient({
+  user,
   business,
   templates,
 }: {
+  user: UserData;
   business: BusinessData;
   templates: TemplateData[];
 }) {
-  const [activeTab, setActiveTab] = useState<Tab>("business");
+  const searchParams = useSearchParams();
+  const initialTab = (searchParams.get("tab") as Tab | null) ?? "profile";
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [currentBusiness, setCurrentBusiness] = useState(business);
 
   return (
@@ -106,6 +127,9 @@ export default function SettingsClient({
 
         {/* Content */}
         <div className="flex-1 min-w-0">
+          {activeTab === "profile" && (
+            <ProfileSettings user={user} />
+          )}
           {activeTab === "business" && (
             <BusinessSettings
               business={currentBusiness}
@@ -127,6 +151,7 @@ export default function SettingsClient({
               onSaved={setCurrentBusiness}
             />
           )}
+
         </div>
       </div>
     </div>

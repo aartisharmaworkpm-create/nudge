@@ -1,13 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import PublicHeader from "@/components/layout/PublicHeader";
+import Footer from "@/components/layout/Footer";
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const planParam = searchParams.get("plan"); // e.g. "GROWTH"
   const [step, setStep] = useState<1 | 2>(1);
+
+  useEffect(() => {
+    // Persist plan selection across signup → onboard flow
+    if (planParam) sessionStorage.setItem("nudge_pending_plan", planParam);
+  }, [planParam]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,13 +46,14 @@ export default function SignupPage() {
       return;
     }
 
-    await signIn("credentials", { email, password, callbackUrl: "/dashboard" });
-    router.push("/dashboard");
+    const pendingPlan = sessionStorage.getItem("nudge_pending_plan");
+    const callbackUrl = pendingPlan ? `/onboard?plan=${pendingPlan}` : "/onboard";
+    await signIn("credentials", { email, password, callbackUrl });
+    router.push(callbackUrl);
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cream">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+    <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
         <div className="mb-2">
           <div className="flex items-center gap-2 mb-4">
             <div className={`h-1.5 flex-1 rounded-full ${step >= 1 ? "bg-teal-800" : "bg-gray-200"}`} />
@@ -180,6 +190,19 @@ export default function SignupPage() {
           </Link>
         </p>
       </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <div className="min-h-screen flex flex-col bg-cream">
+      <PublicHeader activePage="signup" />
+      <main className="flex-1 flex items-center justify-center px-4 py-12">
+        <Suspense>
+          <SignupForm />
+        </Suspense>
+      </main>
+      <Footer />
     </div>
   );
 }

@@ -4,19 +4,25 @@ import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import PublicHeader from "@/components/layout/PublicHeader";
+import Footer from "@/components/layout/Footer";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cream">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
-          <p className="text-gray-500 mt-1 text-sm">Sign in to your Nudge account</p>
+    <div className="min-h-screen flex flex-col bg-cream">
+      <PublicHeader activePage="login" />
+      <main className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
+            <p className="text-gray-500 mt-1 text-sm">Sign in to your Nudge account</p>
+          </div>
+          <Suspense fallback={<div className="h-64 flex items-center justify-center text-sm text-gray-400">Loading…</div>}>
+            <LoginForm />
+          </Suspense>
         </div>
-        <Suspense fallback={<div className="h-64 flex items-center justify-center text-sm text-gray-400">Loading…</div>}>
-          <LoginForm />
-        </Suspense>
-      </div>
+      </main>
+      <Footer />
     </div>
   );
 }

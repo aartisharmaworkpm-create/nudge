@@ -3,6 +3,48 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { PLANS, isTrialActive } from "@/lib/plans";
+
+function PlanCard({ plan, trialEndsAt }: { plan: string; trialEndsAt: Date | string | null }) {
+  const isTrial    = plan === "TRIAL";
+  const isCanceled = plan === "CANCELED";
+  const planConfig = PLANS[plan as keyof typeof PLANS];
+  const label      = planConfig?.label ?? plan;
+
+  const trialActive   = isTrial ? isTrialActive(trialEndsAt ? new Date(trialEndsAt) : null) : false;
+  const trialDaysLeft = trialEndsAt
+    ? Math.max(0, Math.ceil((new Date(trialEndsAt).getTime() - Date.now()) / 86400000))
+    : 0;
+
+  const bg     = isCanceled ? "bg-gray-100 border-gray-200"
+               : isTrial    ? "bg-amber-50 border-amber-200"
+               :               "bg-teal-50 border-teal-200";
+  const dot    = isCanceled ? "bg-gray-400"
+               : isTrial    ? "bg-amber-400"
+               :               "bg-teal-500";
+  const text   = isCanceled ? "text-gray-500"
+               : isTrial    ? "text-amber-800"
+               :               "text-teal-900";
+  const sub    = isCanceled ? "Subscription ended"
+               : isTrial && trialActive  ? `${trialDaysLeft} day${trialDaysLeft !== 1 ? "s" : ""} left in trial`
+               : isTrial && !trialActive ? "Trial ended"
+               :                           "Active subscription";
+
+  return (
+    <Link
+      href="/billing"
+      className={`block rounded-xl border px-3 py-2.5 transition-colors hover:brightness-95 ${bg}`}
+    >
+      <div className="flex items-center gap-2 mb-0.5">
+        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${dot}`} />
+        <span className={`text-xs font-bold ${text}`}>{label} plan</span>
+      </div>
+      <p className={`text-xs pl-4 ${isCanceled || (isTrial && !trialActive) ? "text-red-500 font-medium" : "text-gray-500"}`}>
+        {sub}
+      </p>
+    </Link>
+  );
+}
 
 const NAV = [
   {
@@ -24,6 +66,24 @@ const NAV = [
     ),
   },
   {
+    href: "/transactions",
+    label: "Transactions",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" />
+      </svg>
+    ),
+  },
+  {
+    href: "/billing",
+    label: "Billing",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+      </svg>
+    ),
+  },
+  {
     href: "/settings",
     label: "Settings",
     icon: (
@@ -38,26 +98,23 @@ const NAV = [
 export default function Sidebar({
   businessName,
   userEmail,
+  plan,
+  trialEndsAt,
 }: {
   businessName: string;
   userEmail: string;
+  plan: string;
+  trialEndsAt: Date | string | null;
 }) {
   const pathname = usePathname();
   const [showConfirm, setShowConfirm] = useState(false);
-  const [signingOut, setSigningOut] = useState(false);
-
-  async function handleSignOut() {
-    setSigningOut(true);
-    await fetch("/api/auth/logout");
-    window.location.href = "/login";
-  }
 
   return (
     <>
       <aside className="w-60 bg-white border-r border-gray-200 flex flex-col">
         {/* Logo */}
         <div className="px-5 py-5 border-b border-gray-100">
-          <span className="text-xl font-black text-gray-900 tracking-tight">Nudge.</span>
+          <Link href="/" className="text-xl font-black text-gray-900 tracking-tight hover:opacity-75 transition-opacity">Nudge.</Link>
           <p className="text-xs text-gray-400 mt-0.5 truncate">{businessName}</p>
         </div>
 
@@ -81,6 +138,11 @@ export default function Sidebar({
             );
           })}
         </nav>
+
+        {/* Plan card */}
+        <div className="px-3 pb-3">
+          <PlanCard plan={plan} trialEndsAt={trialEndsAt} />
+        </div>
 
         {/* User */}
         <div className="px-3 py-4 border-t border-gray-100">
@@ -111,18 +173,16 @@ export default function Sidebar({
               <button
                 type="button"
                 onClick={() => setShowConfirm(false)}
-                disabled={signingOut}
-                className="flex-1 border border-gray-300 rounded-lg py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                className="flex-1 border border-gray-300 rounded-lg py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="button"
-                onClick={handleSignOut}
-                disabled={signingOut}
-                className="flex-1 bg-teal-800 text-white rounded-lg py-2 text-sm font-medium hover:bg-teal-900 transition-colors disabled:opacity-50"
+                onClick={() => { window.location.href = "/api/auth/logout"; }}
+                className="flex-1 bg-teal-800 text-white rounded-lg py-2 text-sm font-medium hover:bg-teal-900 transition-colors"
               >
-                {signingOut ? "Signing out…" : "Yes, sign out"}
+                Yes, sign out
               </button>
             </div>
           </div>
